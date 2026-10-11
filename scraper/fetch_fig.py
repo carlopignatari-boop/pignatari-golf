@@ -93,29 +93,15 @@ def parse_rows(page):
     rows = page.query_selector_all("table tbody tr")
     print(f"Trovate {len(rows)} righe totali")
 
-    gare = []
+    pending_rows = []  # Valida=S ma SD non ancora elaborato (mostrate ma fuori perimetro)
+    gare = []          # Valida=S con SD disponibile (perimetro reale FIG, max 20)
+
     for row in rows:
         cells = [td.inner_text().strip() for td in row.query_selector_all("td")]
         if len(cells) < 23:
             continue
-
-        valida = cells[10].strip()
-        if valida != "S":
+        if cells[10].strip() != "S":
             continue
-
-        data_str = cells[0].strip()
-        gara     = cells[3].strip()
-        circolo  = cells[6].strip()
-        stbl_raw = cells[15].strip()
-        ags_raw  = cells[16].strip()
-        pcc_raw  = cells[17].strip()
-        sd_raw   = cells[18].strip()
-        idx_new  = cells[22].strip() if len(cells) > 22 else ""
-        idx_old  = cells[21].strip() if len(cells) > 21 else ""
-        var_raw  = cells[23].strip() if len(cells) > 23 else ""
-
-        link_el = row.query_selector("td:first-child a")
-        link = FIG_URL + link_el.get_attribute("href") if link_el else ""
 
         def to_float(s):
             try:
@@ -123,35 +109,44 @@ def parse_rows(page):
             except Exception:
                 return None
 
-        gare.append({
-            "data":    data_str,
-            "gara":    gara,
-            "circolo": circolo,
-            "stbl":    to_float(stbl_raw),
-            "ags":     to_float(ags_raw),
-            "pcc":     to_float(pcc_raw) if pcc_raw else None,
+        link_el = row.query_selector("td:first-child a")
+        link = FIG_URL + link_el.get_attribute("href") if link_el else ""
+        sd_raw = cells[18].strip()
+
+        entry = {
+            "data":    cells[0].strip(),
+            "gara":    cells[3].strip(),
+            "circolo": cells[6].strip(),
+            "stbl":    to_float(cells[15]),
+            "ags":     to_float(cells[16]),
+            "pcc":     to_float(cells[17]) if cells[17].strip() else None,
             "sd":      to_float(sd_raw) if sd_raw else None,
-            "idxN":    to_float(idx_new),
-            "idxV":    to_float(idx_old),
-            "var":     to_float(var_raw),
+            "idxN":    to_float(cells[22]) if len(cells) > 22 else None,
+            "idxV":    to_float(cells[21]) if len(cells) > 21 else None,
+            "var":     to_float(cells[23]) if len(cells) > 23 else None,
             "pending": not bool(sd_raw),
             "link":    link,
-        })
+            "top8":    False,
+        }
 
-        if len(gare) >= 20:
-            break
+        if not sd_raw:
+            pending_rows.append(entry)
+        else:
+            gare.append(entry)
+            if len(gare) >= 20:
+                break
 
-    print(f"Gare Valida=S estratte: {len(gare)}")
-
-    for i, g in enumerate(gare):
+    all_rows = pending_rows + gare
+    for i, g in enumerate(all_rows):
         g["n"] = i + 1
 
-    with_sd = sorted([g for g in gare if g["sd"] is not None], key=lambda x: x["sd"])
-    top8_ids = {g["n"] for g in with_sd[:8]}
-    for g in gare:
+    top8_ids = {g["n"] for g in sorted(gare, key=lambda x: x["sd"])[:8]}
+    for g in all_rows:
         g["top8"] = g["n"] in top8_ids
 
-    return gare
+    print(f"Pending (SD non elaborato): {len(pending_rows)}")
+    print(f"Gare nel perimetro FIG: {len(gare)}")
+    return all_rows
 
 
 def calc_stats(gare):
