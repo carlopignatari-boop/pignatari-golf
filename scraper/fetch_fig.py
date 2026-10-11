@@ -113,14 +113,25 @@ def parse_rows(page):
         link = FIG_URL + link_el.get_attribute("href") if link_el else ""
         sd_raw = cells[18].strip()
 
+        cr  = to_float(cells[13]) if len(cells) > 13 else None
+        sr  = to_float(cells[14]) if len(cells) > 14 else None
+        ags = to_float(cells[16])
+        # SD stimato = (AGS - CR) * (113 / SR), arrotondato a 1 decimale
+        sd_est = None
+        if not sd_raw and ags and cr and sr and sr > 0:
+            sd_est = round((ags - cr) * (113 / sr), 1)
+
         entry = {
             "data":    cells[0].strip(),
             "gara":    cells[3].strip(),
             "circolo": cells[6].strip(),
             "stbl":    to_float(cells[15]),
-            "ags":     to_float(cells[16]),
+            "ags":     ags,
             "pcc":     to_float(cells[17]) if cells[17].strip() else None,
             "sd":      to_float(sd_raw) if sd_raw else None,
+            "sd_est":  sd_est,
+            "cr":      cr,
+            "sr":      sr,
             "idxN":    to_float(cells[22]) if len(cells) > 22 else None,
             "idxV":    to_float(cells[21]) if len(cells) > 21 else None,
             "var":     to_float(cells[23]) if len(cells) > 23 else None,
