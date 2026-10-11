@@ -1,0 +1,42 @@
+name: Aggiorna dati FIG
+
+on:
+  schedule:
+    # Ogni lunedì alle 07:00 ora italiana (05:00 UTC)
+    - cron: '0 5 * * 1'
+  workflow_dispatch:  # permette run manuale dal sito GitHub
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Installa dipendenze
+        run: |
+          pip install playwright
+          playwright install chromium
+          playwright install-deps chromium
+
+      - name: Esegui scraper FIG
+        env:
+          FIG_USERNAME: ${{ secrets.FIG_USERNAME }}
+          FIG_PASSWORD: ${{ secrets.FIG_PASSWORD }}
+        run: python scraper/fetch_fig.py
+
+      - name: Commit e push index.html aggiornato
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add index.html scraper/last_run.json
+          git diff --staged --quiet || git commit -m "Auto-update dati FIG $(date +'%d/%m/%Y')"
+          git push

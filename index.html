@@ -5,130 +5,223 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Pignatari — Ultime 20 gare</title>
 <style>
-  :root {
-    --bg: #0f1117; --card: #1a1d27; --elevated: #23273a;
-    --text: #e2e8f0; --muted: #8892a4; --accent: #60a5fa;
-    --ok: #34d399; --warn: #fbbf24; --border: #2d3348; --radius: 10px;
-  }
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); padding: 16px; font-size: 14px; min-height: 100vh; }
-  h1 { font-size: 20px; font-weight: 700; margin-bottom: 4px; }
-  .subtitle { color: var(--muted); font-size: 12px; margin-bottom: 18px; }
-  .summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 20px; }
-  .stat-card { background: var(--card); border-radius: var(--radius); padding: 14px 16px; border: 1px solid var(--border); }
-  .stat-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.05em; }
-  .stat-value { font-size: 26px; font-weight: 800; color: var(--accent); line-height: 1.1; margin: 4px 0 2px; }
-  .stat-sub { font-size: 11px; color: var(--muted); }
-  .table-wrap { overflow-x: auto; border-radius: var(--radius); border: 1px solid var(--border); }
-  table { width: 100%; border-collapse: collapse; min-width: 700px; }
-  thead { background: var(--elevated); }
-  th { padding: 8px 10px; text-align: left; font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.06em; border-bottom: 1px solid var(--border); white-space: nowrap; }
-  td { padding: 7px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; vertical-align: middle; }
-  tr:last-child td { border-bottom: none; }
-  tr.best { background: color-mix(in srgb, var(--ok) 8%, transparent); }
-  tr.best td:first-child { border-left: 3px solid var(--ok); }
-  tr:not(.best) td:first-child { border-left: 3px solid transparent; }
-  .num { text-align: right; font-variant-numeric: tabular-nums; }
-  .badge { display: inline-block; background: var(--ok); color: #0f1117; border-radius: 4px; padding: 1px 7px; font-size: 10px; font-weight: 700; }
-  .badge-warn { display: inline-block; background: var(--warn); color: #0f1117; border-radius: 4px; padding: 1px 6px; font-size: 10px; font-weight: 700; }
-  .var-pos { color: #f87171; font-size: 12px; }
-  .var-neg { color: var(--ok); font-size: 12px; }
-  .var-neu { color: var(--muted); font-size: 12px; }
-  .link-cell a { color: var(--accent); text-decoration: none; font-size: 12px; opacity: 0.8; }
-  .link-cell a:hover { opacity: 1; text-decoration: underline; }
-  .legend { margin-top: 14px; font-size: 11px; color: var(--muted); display: flex; flex-wrap: wrap; gap: 14px; align-items: center; }
-  .leg-item { display: flex; align-items: center; gap: 6px; }
-  .dot-ok { width: 10px; height: 10px; background: var(--ok); border-radius: 2px; display: inline-block; }
-  .note-box { margin-top: 14px; background: color-mix(in srgb, var(--warn) 10%, transparent); border: 1px solid color-mix(in srgb, var(--warn) 40%, transparent); border-radius: var(--radius); padding: 10px 14px; font-size: 12px; color: var(--warn); line-height: 1.6; }
+  :root{--bg:#0f1117;--card:#1a1d27;--elevated:#23273a;--text:#e2e8f0;--muted:#8892a4;
+    --accent:#60a5fa;--ok:#34d399;--warn:#fbbf24;--border:#2d3348;--radius:10px}
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);padding:16px;font-size:14px;min-height:100vh}
+  h1{font-size:20px;font-weight:700;margin-bottom:4px}
+  .subtitle{color:var(--muted);font-size:12px;margin-bottom:18px}
+  .summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:20px}
+  .stat-card{background:var(--card);border-radius:var(--radius);padding:14px 16px;border:1px solid var(--border)}
+  .stat-label{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+  .stat-value{font-size:26px;font-weight:800;color:var(--accent);line-height:1.1;margin:4px 0 2px}
+  .stat-sub{font-size:11px;color:var(--muted)}
+  .table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
+  table{width:100%;border-collapse:collapse;min-width:700px}
+  thead{background:var(--elevated)}
+  th{padding:8px 10px;text-align:left;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--border);white-space:nowrap}
+  td{padding:7px 10px;border-bottom:1px solid var(--border);white-space:nowrap;vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr.best{background:color-mix(in srgb,var(--ok) 8%,transparent)}
+  tr.best td:first-child{border-left:3px solid var(--ok)}
+  tr:not(.best) td:first-child{border-left:3px solid transparent}
+  .num{text-align:right;font-variant-numeric:tabular-nums}
+  .badge{display:inline-block;background:var(--ok);color:#0f1117;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700}
+  .badge-warn{display:inline-block;background:var(--warn);color:#0f1117;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700}
+  .var-pos{color:#f87171;font-size:12px}.var-neg{color:var(--ok);font-size:12px}.var-neu{color:var(--muted);font-size:12px}
+  .link-cell a{color:var(--accent);text-decoration:none;font-size:12px;opacity:.8}
+  .link-cell a:hover{opacity:1;text-decoration:underline}
+  .legend{margin-top:14px;font-size:11px;color:var(--muted);display:flex;flex-wrap:wrap;gap:14px;align-items:center}
+  .leg-item{display:flex;align-items:center;gap:6px}
+  .dot-ok{width:10px;height:10px;background:var(--ok);border-radius:2px;display:inline-block}
+  .note-box{margin-top:14px;background:color-mix(in srgb,var(--warn) 10%,transparent);border:1px solid color-mix(in srgb,var(--warn) 40%,transparent);border-radius:var(--radius);padding:10px 14px;font-size:12px;color:var(--warn);line-height:1.6}
 </style>
 </head>
 <body>
 <h1>🏌️ Pignatari — Ultime 20 gare valide (Valida = S)</h1>
-<div class="subtitle">Dati reali da FIG areariservata.federgolf.it · Aggiornato al 11/10/2026</div>
-<div class="summary" id="summary"></div>
+<div class="subtitle">Dati reali da FIG · Aggiornato automaticamente il 11/10/2026 21:03</div>
+<div class="summary">
+  <div class="stat-card"><div class="stat-label">Gare nel calcolo</div><div class="stat-value">8<span style="font-size:14px;color:var(--muted)">/20</span></div><div class="stat-sub">migliori 8 SD (Valida=S)</div></div>
+  <div class="stat-card"><div class="stat-label">Media SD — Top 8</div><div class="stat-value">25.65</div><div class="stat-sub">Score Differenziale medio</div></div>
+  <div class="stat-card"><div class="stat-label">Miglior SD</div><div class="stat-value">21.2</div><div class="stat-sub">performance migliore</div></div>
+  <div class="stat-card"><div class="stat-label">Media Stbl — Top 8</div><div class="stat-value">32.1</div><div class="stat-sub">punti Stableford medi</div></div>
+  <div class="stat-card"><div class="stat-label">Index attuale FIG</div><div class="stat-value">23.8</div><div class="stat-sub">ultima gara elaborata</div></div>
+</div>
 <div class="table-wrap">
   <table>
     <thead>
-      <tr>
-        <th>#</th><th>Data</th><th>Gara</th><th>Circolo</th>
+      <tr><th>#</th><th>Data</th><th>Gara</th><th>Circolo</th>
         <th class="num">Stbl</th><th class="num">AGS</th><th class="num">PCC</th>
         <th class="num">SD</th><th class="num">Index</th><th class="num">Var.</th>
-        <th>Top 8</th><th>Scheda</th>
-      </tr>
+        <th>Top 8</th><th>Scheda</th></tr>
     </thead>
-    <tbody id="rows"></tbody>
+    <tbody>
+        <tr>
+          <td>1</td><td>11/10/2026</td><td>INVITATIONAL PENSKECARS</td><td>MODENA</td>
+          <td class="num">34</td><td class="num">101</td><td class="num">—</td>
+          <td class="num"><span class="badge-warn">?</span></td><td class="num">23.8</td>
+          <td class="num"><span class="var-neu">—</span></td>
+          <td></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/d412872b-9cc5-f111-aaad-7ced8d8bfeb7" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr>
+          <td>2</td><td>04/10/2026</td><td>XX TROFEO PANATHLON CLUB MODENA</td><td>MODENA</td>
+          <td class="num">28</td><td class="num">107</td><td class="num">0</td>
+          <td class="num">31.0</td><td class="num">23.8</td>
+          <td class="num"><span class="var-neu">—</span></td>
+          <td></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/9b295532-1dc0-f111-aaad-6045bd8d0cd6" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr>
+          <td>3</td><td>26/09/2026</td><td>ROTARY ROAD TO OPORTO BY ADESSO SOLE</td><td>MODENA</td>
+          <td class="num">30</td><td class="num">105</td><td class="num">0</td>
+          <td class="num">29.2</td><td class="num">23.8</td>
+          <td class="num"><span class="var-neu">—</span></td>
+          <td></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/daff4b29-cab9-f111-aaae-000d3aa9a289" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr>
+          <td>4</td><td>19/09/2026</td><td>TROFEO EVO INFISSI</td><td>MODENA</td>
+          <td class="num">30</td><td class="num">105</td><td class="num">0</td>
+          <td class="num">29.2</td><td class="num">23.8</td>
+          <td class="num"><span class="var-neu">—</span></td>
+          <td></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/6ef0e3f0-c2b4-f111-aaac-6045bd96fca1" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr class="best">
+          <td>5</td><td>12/09/2026</td><td>MODULA CUP 2026</td><td>MODENA</td>
+          <td class="num">32</td><td class="num">103</td><td class="num">1</td>
+          <td class="num">26.5</td><td class="num">23.8</td>
+          <td class="num"><span class="var-neu">—</span></td>
+          <td><span class="badge">★ TOP 8</span></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/123c67c5-d0ae-f111-aaac-6045bd96fca1" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr class="best">
+          <td>6</td><td>29/08/2026</td><td>TOURISTGOLF & TRAVEL CUP</td><td>MODENA</td>
+          <td class="num">31</td><td class="num">104</td><td class="num">0</td>
+          <td class="num">28.3</td><td class="num">23.8</td>
+          <td class="num"><span class="var-pos">+0.3</span></td>
+          <td><span class="badge">★ TOP 8</span></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/e99e5f1f-cda3-f111-b8de-70a8a5a06624" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr class="best">
+          <td>7</td><td>22/08/2026</td><td>VOUCHER AND TRAVEL TUSCANY TASTE</td><td>MODENA</td>
+          <td class="num">34</td><td class="num">101</td><td class="num">0</td>
+          <td class="num">25.6</td><td class="num">23.5</td>
+          <td class="num"><span class="var-neg">-0.1</span></td>
+          <td><span class="badge">★ TOP 8</span></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/d9c202ef-419e-f111-b8db-70a8a560489e" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr>
+          <td>8</td><td>20/08/2026</td><td>ITINERA TUSCANY CHALLENGE</td><td>MODENA</td>
+          <td class="num">23</td><td class="num">111</td><td class="num">0</td>
+          <td class="num">35.8</td><td class="num">23.6</td>
+          <td class="num"><span class="var-neu">—</span></td>
+          <td></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/bd88e282-999c-f111-b8db-7c1e5228daa9" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr>
+          <td>9</td><td>16/08/2026</td><td>GREEN PASS CARD TROPHY - 1^ PROVA</td><td>MODENA</td>
+          <td class="num">28</td><td class="num">105</td><td class="num">0</td>
+          <td class="num">30.3</td><td class="num">23.6</td>
+          <td class="num"><span class="var-pos">+0.3</span></td>
+          <td></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/2885f5db-8099-f111-b8db-7c1e524eabf7" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr class="best">
+          <td>10</td><td>08/08/2026</td><td>TICKET TO PARADISE</td><td>TERRE DI CANOSSA</td>
+          <td class="num">31</td><td class="num">103</td><td class="num">0</td>
+          <td class="num">26.8</td><td class="num">23.3</td>
+          <td class="num"><span class="var-pos">+0.7</span></td>
+          <td><span class="badge">★ TOP 8</span></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/f7b92b5c-2e93-f111-8075-70a8a5a067d8" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr>
+          <td>11</td><td>01/08/2026</td><td>WAGC</td><td>TERRE DI CANOSSA</td>
+          <td class="num">25</td><td class="num">109</td><td class="num">0</td>
+          <td class="num">31.9</td><td class="num">22.6</td>
+          <td class="num"><span class="var-neu">—</span></td>
+          <td></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/ef5e80d5-be8d-f111-ab0f-70a8a5a067d8" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr>
+          <td>12</td><td>11/07/2026</td><td>WEGOLFERS PLAY TOUR</td><td>MODENA</td>
+          <td class="num">25</td><td class="num">108</td><td class="num">0</td>
+          <td class="num">31.9</td><td class="num">22.3</td>
+          <td class="num"><span class="var-pos">+0.1</span></td>
+          <td></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/532f2bf5-3a7d-f111-ab0e-000d3a213cad" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr>
+          <td>13</td><td>05/07/2026</td><td>GOLF MONKEY</td><td>MODENA</td>
+          <td class="num">24</td><td class="num">108</td><td class="num">0</td>
+          <td class="num">31.9</td><td class="num">22.2</td>
+          <td class="num"><span class="var-pos">+1.0</span></td>
+          <td></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/02e118a3-8078-f111-ab0e-3833c5c99b81" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr>
+          <td>14</td><td>04/07/2026</td><td>WEEKLY BPER BANCA CUP</td><td>MODENA</td>
+          <td class="num">25</td><td class="num">107</td><td class="num">0</td>
+          <td class="num">31.0</td><td class="num">21.2</td>
+          <td class="num"><span class="var-pos">+0.2</span></td>
+          <td></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/d37802ce-b677-f111-ab0e-000d3a4cccf0" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr class="best">
+          <td>15</td><td>28/06/2026</td><td>I CHALLENGE EMILIA-ROMAGNA GOLF AMATEUR</td><td>MODENA</td>
+          <td class="num">31</td><td class="num">101</td><td class="num">0</td>
+          <td class="num">25.6</td><td class="num">21.0</td>
+          <td class="num"><span class="var-neu">—</span></td>
+          <td><span class="badge">★ TOP 8</span></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/d86ab92d-0173-f111-ab0d-7ced8d5ad87d" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr>
+          <td>16</td><td>27/06/2026</td><td>WEEKLY BPER BANCA CUP - 4^ Prova</td><td>MODENA</td>
+          <td class="num">25</td><td class="num">106</td><td class="num">0</td>
+          <td class="num">30.1</td><td class="num">21.0</td>
+          <td class="num"><span class="var-pos">+0.3</span></td>
+          <td></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/aeebf9c6-4072-f111-ab0e-6045bd8a538a" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr class="best">
+          <td>17</td><td>21/06/2026</td><td>DOMINA GOLF TELEVISION IN TOUR 2026</td><td>MODENA</td>
+          <td class="num">36</td><td class="num">96</td><td class="num">0</td>
+          <td class="num">21.2</td><td class="num">20.7</td>
+          <td class="num"><span class="var-neg">-0.4</span></td>
+          <td><span class="badge">★ TOP 8</span></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/a9a5338d-8e6d-f111-ab0d-00224882a8dd" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr class="best">
+          <td>18</td><td>20/06/2026</td><td>MERCEDESTROPHY 2026</td><td>MODENA</td>
+          <td class="num">33</td><td class="num">99</td><td class="num">0</td>
+          <td class="num">23.8</td><td class="num">21.1</td>
+          <td class="num"><span class="var-neg">-0.2</span></td>
+          <td><span class="badge">★ TOP 8</span></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/01a337da-cc6c-f111-ab0d-6045bdf30e59" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr>
+          <td>19</td><td>07/06/2026</td><td>GOLFITALIANO CUP BY CANTINE SANTADI</td><td>MODENA</td>
+          <td class="num">28</td><td class="num">104</td><td class="num">0</td>
+          <td class="num">28.3</td><td class="num">21.3</td>
+          <td class="num"><span class="var-pos">+0.5</span></td>
+          <td></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/8f3cda4a-8962-f111-a826-7ced8d59bf91" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr>
+        <tr class="best">
+          <td>20</td><td>06/06/2026</td><td>TROFEO ZYCAR BY MACOM</td><td>MODENA</td>
+          <td class="num">29</td><td class="num">103</td><td class="num">0</td>
+          <td class="num">27.4</td><td class="num">20.8</td>
+          <td class="num"><span class="var-neu">—</span></td>
+          <td><span class="badge">★ TOP 8</span></td>
+          <td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/568ef64a-c261-f111-a826-7ced8d59bf91" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>
+        </tr></tbody>
   </table>
 </div>
 <div class="legend">
   <div class="leg-item"><span class="dot-ok"></span><span>8 SD più bassi — usate per il calcolo handicap</span></div>
   <div class="leg-item"><span class="badge-warn">?</span><span>SD non ancora elaborato da FIG</span></div>
 </div>
-<div class="note-box" id="note-box"></div>
-
-<script>
-// Solo gare Valida=S estratte da FIG il 11/10/2026
-const data = [
-  {n:1,  data:"11/10/2026", gara:"INVITATIONAL PENSKECARS",              circolo:"MODENA",           stbl:34, ags:101, pcc:null, sd:null,  idxN:23.8, idxV:23.8, var:0.0,  pending:true,  link:"https://areariservata.federgolf.it/Risultati/ViewDetail/d412872b-9cc5-f111-aaad-7ced8d8bfeb7"},
-  {n:2,  data:"04/10/2026", gara:"XX TROFEO PANATHLON CLUB MODENA",      circolo:"MODENA",           stbl:28, ags:107, pcc:0,    sd:31.0,  idxN:23.8, idxV:23.8, var:0.0,  pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/9b295532-1dc0-f111-aaad-6045bd8d0cd6"},
-  {n:3,  data:"26/09/2026", gara:"ROTARY ROAD TO OPORTO BY ADESSO SOLE", circolo:"MODENA",           stbl:30, ags:105, pcc:0,    sd:29.2,  idxN:23.8, idxV:23.8, var:0.0,  pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/daff4b29-cab9-f111-aaae-000d3aa9a289"},
-  {n:4,  data:"19/09/2026", gara:"TROFEO EVO INFISSI",                   circolo:"MODENA",           stbl:30, ags:105, pcc:0,    sd:29.2,  idxN:23.8, idxV:23.8, var:0.0,  pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/6ef0e3f0-c2b4-f111-aaac-6045bd96fca1"},
-  {n:5,  data:"12/09/2026", gara:"MODULA CUP 2026",                      circolo:"MODENA",           stbl:32, ags:103, pcc:1,    sd:26.5,  idxN:23.8, idxV:23.8, var:0.0,  pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/123c67c5-d0ae-f111-aaac-6045bd96fca1"},
-  {n:6,  data:"29/08/2026", gara:"TOURISTGOLF & TRAVEL CUP",             circolo:"MODENA",           stbl:31, ags:104, pcc:0,    sd:28.3,  idxN:23.8, idxV:23.5, var:0.3,  pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/e99e5f1f-cda3-f111-b8de-70a8a5a06624"},
-  {n:7,  data:"22/08/2026", gara:"VOUCHER AND TRAVEL TUSCANY TASTE",     circolo:"MODENA",           stbl:34, ags:101, pcc:0,    sd:25.6,  idxN:23.5, idxV:23.6, var:-0.1, pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/d9c202ef-419e-f111-b8db-70a8a560489e"},
-  {n:8,  data:"20/08/2026", gara:"ITINERA TUSCANY CHALLENGE",            circolo:"MODENA",           stbl:23, ags:111, pcc:0,    sd:35.8,  idxN:23.6, idxV:23.6, var:0.0,  pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/bd88e282-999c-f111-b8db-7c1e5228daa9"},
-  {n:9,  data:"16/08/2026", gara:"GREEN PASS CARD TROPHY - 1^ PROVA",   circolo:"MODENA",           stbl:28, ags:105, pcc:0,    sd:30.3,  idxN:23.6, idxV:23.3, var:0.3,  pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/2885f5db-8099-f111-b8db-7c1e524eabf7"},
-  {n:10, data:"08/08/2026", gara:"TICKET TO PARADISE",                   circolo:"TERRE DI CANOSSA", stbl:31, ags:103, pcc:0,    sd:26.8,  idxN:23.3, idxV:22.6, var:0.7,  pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/f7b92b5c-2e93-f111-8075-70a8a5a067d8"},
-  {n:11, data:"01/08/2026", gara:"WAGC",                                  circolo:"TERRE DI CANOSSA", stbl:25, ags:109, pcc:0,    sd:31.9,  idxN:22.6, idxV:22.6, var:0.0,  pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/ef5e80d5-be8d-f111-ab0f-70a8a5a067d8"},
-  {n:12, data:"18/07/2026", gara:"WEEKLY BPER BANCA CUP - 9 Buche",     circolo:"MODENA",           stbl:14, ags:52,  pcc:1,    sd:27.0,  idxN:22.6, idxV:22.3, var:0.3,  pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/333aca75-e0b1-f111-aaac-000d3aa9a289"},
-  {n:13, data:"11/07/2026", gara:"WEGOLFERS PLAY TOUR",                  circolo:"MODENA",           stbl:25, ags:108, pcc:0,    sd:31.9,  idxN:22.3, idxV:22.2, var:0.1,  pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/55a5c9c9-3a7d-f111-ab0e-000d3a213cad"},
-  {n:14, data:"05/07/2026", gara:"GOLF MONKEY",                           circolo:"MODENA",           stbl:24, ags:108, pcc:0,    sd:31.9,  idxN:22.2, idxV:21.2, var:1.0,  pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/02e118a3-8078-f111-ab0e-3833c5c99b81"},
-  {n:15, data:"04/07/2026", gara:"WEEKLY BPER BANCA CUP",                circolo:"MODENA",           stbl:25, ags:107, pcc:0,    sd:31.0,  idxN:21.2, idxV:21.0, var:0.2,  pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/d37802ce-b677-f111-ab0e-000d3a4cccf0"},
-  {n:16, data:"28/06/2026", gara:"I CHALLENGE EMILIA-ROMAGNA GOLF",      circolo:"MODENA",           stbl:31, ags:101, pcc:0,    sd:25.6,  idxN:21.0, idxV:21.0, var:0.0,  pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/d86ab92d-0173-f111-ab0d-7ced8d5ad87d"},
-  {n:17, data:"27/06/2026", gara:"WEEKLY BPER BANCA CUP - 4^ Prova",    circolo:"MODENA",           stbl:25, ags:106, pcc:0,    sd:30.1,  idxN:21.0, idxV:20.7, var:0.3,  pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/aeebf9c6-4072-f111-ab0e-6045bd8a538a"},
-  {n:18, data:"21/06/2026", gara:"DOMINA GOLF TELEVISION IN TOUR 2026",  circolo:"MODENA",           stbl:36, ags:96,  pcc:0,    sd:21.2,  idxN:20.7, idxV:21.1, var:-0.4, pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/a9a5338d-8e6d-f111-ab0d-00224882a8dd"},
-  {n:19, data:"20/06/2026", gara:"MERCEDESTROPHY 2026",                  circolo:"MODENA",           stbl:33, ags:99,  pcc:0,    sd:23.8,  idxN:21.1, idxV:21.3, var:-0.2, pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/01a337da-cc6c-f111-ab0d-6045bdf30e59"},
-  {n:20, data:"06/06/2026", gara:"TROFEO ZYCAR BY MACOM",                circolo:"MODENA",           stbl:29, ags:103, pcc:0,    sd:27.4,  idxN:20.8, idxV:20.8, var:0.0,  pending:false, link:"https://areariservata.federgolf.it/Risultati/ViewDetail/568ef64a-c261-f111-a826-7ced8d59bf91"},
-];
-
-// Migliori 8 per SD (solo gare con SD disponibile)
-const withSD = data.filter(d => d.sd !== null).sort((a,b) => a.sd - b.sd);
-const top8ids = new Set(withSD.slice(0,8).map(d => d.n));
-data.forEach(d => d.top8 = top8ids.has(d.n));
-
-const best8 = data.filter(d => d.top8);
-const avgSD = best8.reduce((s,d) => s + d.sd, 0) / best8.length;
-const avgStbl = best8.reduce((s,d) => s + d.stbl, 0) / best8.length;
-const bestSD = Math.min(...best8.map(d => d.sd));
-const theIdx = (avgSD * 0.96).toFixed(1);
-
-document.getElementById("summary").innerHTML = `
-  <div class="stat-card"><div class="stat-label">Gare nel calcolo</div><div class="stat-value">${best8.length}<span style="font-size:14px;color:var(--muted)">/20</span></div><div class="stat-sub">migliori 8 SD (Valida=S)</div></div>
-  <div class="stat-card"><div class="stat-label">Media SD — Top 8</div><div class="stat-value">${avgSD.toFixed(2)}</div><div class="stat-sub">Score Differenziale medio</div></div>
-  <div class="stat-card"><div class="stat-label">Miglior SD</div><div class="stat-value">${bestSD.toFixed(1)}</div><div class="stat-sub">performance migliore</div></div>
-  <div class="stat-card"><div class="stat-label">Media Stbl — Top 8</div><div class="stat-value">${avgStbl.toFixed(1)}</div><div class="stat-sub">punti Stableford medi</div></div>
-  <div class="stat-card"><div class="stat-label">Index attuale FIG</div><div class="stat-value">23.8</div><div class="stat-sub">dopo gara 11/10/2026</div></div>
-`;
-
-const tbody = document.getElementById("rows");
-data.forEach(d => {
-  const tr = document.createElement("tr");
-  if (d.top8) tr.className = "best";
-  const vc = d.var < 0 ? "var-neg" : d.var > 0 ? "var-pos" : "var-neu";
-  const vs = d.var === 0 ? "—" : (d.var > 0 ? "+" : "") + d.var.toFixed(1);
-  const sdCell = d.pending ? '<span class="badge-warn">?</span>' : (d.sd !== null ? d.sd.toFixed(1) : "—");
-  tr.innerHTML = `<td>${d.n}</td><td>${d.data}</td><td>${d.gara}</td><td>${d.circolo}</td>
-    <td class="num">${d.stbl}</td><td class="num">${d.ags}</td><td class="num">${d.pcc !== null ? d.pcc : '—'}</td>
-    <td class="num">${sdCell}</td><td class="num">${d.idxN.toFixed(1)}</td>
-    <td class="num"><span class="${vc}">${vs}</span></td>
-    <td>${d.top8 ? '<span class="badge">★ TOP 8</span>' : ''}</td>
-    <td class="link-cell"><a href="${d.link}" target="_blank" rel="noopener noreferrer">↗ scheda</a></td>`;
-  tbody.appendChild(tr);
-});
-
-document.getElementById("note-box").innerHTML =
-  `⚠️ Gara #1 (INVITATIONAL PENSKECARS, 11/10/2026): SD non ancora elaborato da FIG — non inclusa nel calcolo Top 8. ` +
-  `Index teorico calcolato: ${avgSD.toFixed(2)} × 0.96 = <strong>${theIdx}</strong> ` +
-  `(vs 23.8 FIG — delta dovuto al SD della gara #1 ancora mancante o a differenze nel perimetro delle 20 gare usate da FIG).`;
-</script>
+<div class="note-box">⚠️ SD non ancora elaborato da FIG per: <strong>INVITATIONAL PENSKECARS</strong>. Non incluse nel calcolo Top 8. Index teorico attuale: 25.65 × 0.96 = <strong>24.6</strong> (vs 23.8 FIG).</div>
 </body>
 </html>
