@@ -170,11 +170,11 @@ def calc_stats(gare):
     idx_fig  = gare[0]["idxN"] if gare else None
     return {
         "n_best8":        len(best8),
-        "avg_sd":         round(avg_sd, 2),
+        "avg_sd":         round(avg_sd, 1),
         "avg_stbl":       round(avg_stbl, 1),
         "best_sd":        round(best_sd, 1),
         "idx_fig":        idx_fig,
-        "theoretical_idx": round(avg_sd * 0.96, 1),
+        "theoretical_idx": round(avg_sd, 1),
     }
 
 
@@ -208,7 +208,7 @@ def render_html(gare, stats, updated_at):
         pending_note = (
             f'<div class="note-box">⚠️ SD non ancora elaborato da FIG per: <strong>{names}</strong>. '
             f'Non incluse nel calcolo Top 8. '
-            f'Index teorico attuale: {stats["avg_sd"]:.2f} × 0.96 = <strong>{stats["theoretical_idx"]}</strong> '
+            f'Media SD Top 8: <strong>{stats["avg_sd"]:.1f}</strong> '
             f'(vs {stats["idx_fig"]} FIG).</div>'
         )
 
@@ -256,7 +256,7 @@ def render_html(gare, stats, updated_at):
 <div class="subtitle">Dati reali da FIG · Aggiornato automaticamente il {updated_at}</div>
 <div class="summary">
   <div class="stat-card"><div class="stat-label">Gare nel calcolo</div><div class="stat-value">{stats['n_best8']}<span style="font-size:14px;color:var(--muted)">/20</span></div><div class="stat-sub">migliori 8 SD (Valida=S)</div></div>
-  <div class="stat-card"><div class="stat-label">Media SD — Top 8</div><div class="stat-value">{stats['avg_sd']:.2f}</div><div class="stat-sub">Score Differenziale medio</div></div>
+  <div class="stat-card"><div class="stat-label">Media SD — Top 8</div><div class="stat-value">{stats['avg_sd']:.1f}</div><div class="stat-sub">Score Differenziale medio</div></div>
   <div class="stat-card"><div class="stat-label">Miglior SD</div><div class="stat-value">{stats['best_sd']:.1f}</div><div class="stat-sub">performance migliore</div></div>
   <div class="stat-card"><div class="stat-label">Media Stbl — Top 8</div><div class="stat-value">{stats['avg_stbl']:.1f}</div><div class="stat-sub">punti Stableford medi</div></div>
   <div class="stat-card"><div class="stat-label">Index attuale FIG</div><div class="stat-value">{stats['idx_fig']}</div><div class="stat-sub">ultima gara elaborata</div></div>
