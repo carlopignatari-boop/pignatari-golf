@@ -291,7 +291,7 @@ def render_html(gare, stats, updated_at):
 </head>
 <body>
 <h1>🏌️ Pignatari — Ultime 20 gare valide</h1>
-<div class="subtitle">Dati reali FIG (Valida = S) · Aggiornato il {{updated_at}}</div>
+<div class="subtitle">Dati reali FIG (Valida = S) · Aggiornato il {updated_at}</div>
 
 <div class="toolbar">
   <button class="btn btn-back" id="btnBack" onclick="goReal()">← Dati reali</button>
@@ -304,8 +304,8 @@ def render_html(gare, stats, updated_at):
   <div class="proj-fields">
     <div class="proj-field"><label>Stableford</label><input type="number" id="projStbl" min="0" max="72" placeholder="es. 34" inputmode="numeric"></div>
     <div class="proj-field"><label>AGS</label><input type="number" id="projAgs" placeholder="es. 101" inputmode="numeric"></div>
-    <div class="proj-field"><label>CR</label><input type="number" id="projCr" value="{{cr_def}}" step="0.1" inputmode="decimal"></div>
-    <div class="proj-field"><label>SR</label><input type="number" id="projSr" value="{{sr_def}}" inputmode="numeric"></div>
+    <div class="proj-field"><label>CR</label><input type="number" id="projCr" value="{cr_def}" step="0.1" inputmode="decimal"></div>
+    <div class="proj-field"><label>SR</label><input type="number" id="projSr" value="{sr_def}" inputmode="numeric"></div>
     <button class="btn-calc" onclick="calcProj()">Calcola →</button>
   </div>
   <div class="proj-result" id="projResult"></div>
