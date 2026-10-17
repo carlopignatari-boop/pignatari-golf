@@ -8,7 +8,7 @@
 *{box-sizing:border-box;margin:0}
 html,body{background:var(--bg);color:var(--text)}
 body{font-family:Satoshi,ui-sans-serif,system-ui,-apple-system,sans-serif;font-size:16px;line-height:1.45;
-  min-height:100dvh;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+  min-height:100dvh;overflow:hidden;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
 .wrap{max-width:520px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 20px) 18px calc(env(safe-area-inset-bottom) + 24px)}
 .top{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:20px}
 .eyebrow{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
@@ -65,3 +65,23 @@ input:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--accent)
   background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;transition:.25s;pointer-events:none;max-width:90vw}
 .toast.show{opacity:1;transform:translate(-50%,0)}
 .lab{display:flex;justify-content:space-between;align-items:center}.lab .link{font-size:13px}
+
+.shell{position:fixed;inset:0;display:flex;flex-direction:column}
+.view{flex:1;min-height:0;display:none}
+.view.on{display:flex;flex-direction:column}
+#v-sync{overflow-y:auto;-webkit-overflow-scrolling:touch}
+#v-sync .wrap{padding-bottom:24px}
+.bar{display:flex;align-items:center;gap:10px;padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;background:var(--bg);border-bottom:1px solid var(--line)}
+.bar .who{font-weight:700;font-size:17px}
+.bar .status{flex:1;min-width:0;font-size:13px}
+.bar .status [data-k=msg]{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chip{min-height:38px;padding:0 14px;border-radius:12px;border:0;background:var(--accent);color:var(--accent-ink);font:inherit;font-weight:700;font-size:14px;cursor:pointer;flex:none}
+.chip.alt{background:var(--elev);color:var(--text);border:1px solid var(--line);padding:0 10px}
+.chip:disabled{opacity:.5}
+.bar .steps{position:absolute;left:0;right:0;bottom:-1px;margin:0;gap:0}
+.bar{position:relative}
+.bar .steps i{border-radius:0;height:3px}
+.frame{flex:1;width:100%;border:0;background:#0f1117}
+.tabs{display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 8px calc(env(safe-area-inset-bottom) + 6px)}
+.tabs button{flex:1;min-height:48px;border:0;background:none;color:var(--muted);font:inherit;font-weight:600;font-size:15px;border-radius:12px;cursor:pointer}
+.tabs button.on{color:var(--accent-ink);background:var(--accent)}

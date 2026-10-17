@@ -1,7 +1,7 @@
 {
-  "name": "FIG Sync",
-  "short_name": "FIG Sync",
-  "description": "Aggiorna gli snippet handicap FIG di Pignatari e Berilli",
+  "name": "FIG Golf",
+  "short_name": "FIG Golf",
+  "description": "Consulta e aggiorna gli snippet handicap FIG di Pignatari e Berilli",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

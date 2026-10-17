@@ -30,7 +30,7 @@ function toast(t) { const el = $('#toast'); el.textContent = t; el.classList.add
 
 function render() {
   $('#cards').innerHTML = PLAYERS.map(p => `
-    <article class="card" id="c-${p.id}">
+    <article class="card" id="c-${p.id}" data-p="${p.id}">
       <div class="card-head"><span class="name">${p.name}</span><span class="tess">Tessera ${p.tess}</span></div>
       <div class="metrics">
         <div class="metric"><b data-k="idx">—</b><span>Index FIG</span></div>
@@ -43,15 +43,26 @@ function render() {
         <button class="btn go" data-run="${p.id}">Aggiorna</button>
       </div>
     </article>`).join('');
+  PLAYERS.forEach(p => { document.getElementById('v-' + p.id).innerHTML = `
+    <div class="bar" data-p="${p.id}">
+      <span class="who">${p.name}</span>
+      <span class="status"><span class="dot" data-k="dot"></span><span data-k="msg">…</span></span>
+      <button class="chip alt" data-reload="${p.id}" aria-label="Ricarica pagina">↻</button>
+      <button class="chip" data-run="${p.id}">Aggiorna</button>
+      <div class="steps" data-k="steps" hidden><i></i><i></i><i></i></div>
+    </div>
+    <iframe class="frame" id="f-${p.id}" title="Snippet ${p.name}" loading="lazy"></iframe>`; });
+  document.querySelectorAll('[data-reload]').forEach(b => b.onclick = () => reloadFrame(PLAYERS.find(p => p.id === b.dataset.reload)));
   document.querySelectorAll('[data-run]').forEach(b => b.onclick = () => run(PLAYERS.find(p => p.id === b.dataset.run)));
 }
-const q = (p, k) => document.querySelector(`#c-${p.id} [data-k="${k}"]`);
-function setStatus(p, kind, msg) { const d = q(p, 'dot'); d.className = 'dot ' + (kind || ''); q(p, 'msg').textContent = msg; }
+const qa = (p, k) => [...document.querySelectorAll(`[data-p="${p.id}"] [data-k="${k}"]`)];
+const q = (p, k) => qa(p, k)[0];
+function setStatus(p, kind, msg) { qa(p, 'dot').forEach(d => d.className = 'dot ' + (kind || '')); qa(p, 'msg').forEach(m => m.textContent = msg); }
 function setSteps(p, stage, bad) { // stage 0..3
-  const s = q(p, 'steps'); s.hidden = stage == null;
-  [...s.children].forEach((i, n) => { i.className = bad && n === stage ? 'bad' : n < stage ? 'on' : n === stage ? 'now' : ''; });
+  qa(p, 'steps').forEach(s => { s.hidden = stage == null;
+  [...s.children].forEach((i, n) => { i.className = bad && n === stage ? 'bad' : n < stage ? 'on' : n === stage ? 'now' : ''; }); });
 }
-function setBtn(p, dis) { document.querySelector(`[data-run="${p.id}"]`).disabled = dis; updateAll(); }
+function setBtn(p, dis) { document.querySelectorAll(`[data-run="${p.id}"]`).forEach(b => b.disabled = dis); updateAll(); }
 function updateAll() { $('#runAll').disabled = PLAYERS.some(p => busy[p.id]); }
 
 async function loadData(p) {
@@ -113,6 +124,7 @@ async function run(p) {
       if (!pg && i > 6) break; // nessun commit nuovo: dati invariati
     }
     setSteps(p, 3); busy[p.id] = false;
+    reloadFrame(p);
     await loadStatus(p);
     toast(`${p.name} aggiornato`);
   } catch (e) {
@@ -149,7 +161,19 @@ $('#saveToken').onclick = saveToken;
 $('#clearToken').onclick = () => { localStorage.removeItem('figsync.token'); $('#tokenInput').value = ''; $('#tokenState').textContent = 'Token rimosso.'; refreshNotice(); };
 $('#runAll').onclick = () => { if (!token()) return openSettings(); PLAYERS.forEach(run); };
 
+function reloadFrame(p) { const f = document.getElementById('f-' + p.id); f.src = PAGES(p.repo) + '?t=' + Date.now(); }
+function show(tab) {
+  document.querySelectorAll('.view').forEach(v => v.classList.toggle('on', v.dataset.view === tab));
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
+  const p = PLAYERS.find(x => x.id === tab);
+  if (p) { const f = document.getElementById('f-' + p.id); if (!f.src) reloadFrame(p); }
+  localStorage.setItem('figsync.tab', tab);
+  if (location.hash.slice(1) !== tab) history.replaceState(null, '', '#' + tab);
+}
 render(); refreshNotice();
+document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => show(b.dataset.tab));
+const startTab = location.hash.slice(1) || localStorage.getItem('figsync.tab') || 'berilli';
+show(['berilli', 'pignatari', 'sync'].includes(startTab) ? startTab : 'berilli');
 PLAYERS.forEach(loadStatus);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) PLAYERS.forEach(loadStatus); });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
