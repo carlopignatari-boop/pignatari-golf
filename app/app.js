@@ -129,7 +129,7 @@ async function run(p) {
     toast(`${p.name} aggiornato`);
   } catch (e) {
     busy[p.id] = false;
-    const m = e.status === 401 ? 'Token non valido' : e.status === 403 || e.status === 404 ? 'Token senza permesso Actions' : e.message;
+    const m = e.status === 401 ? 'Token scaduto o revocato: aprine uno nuovo dall\'ingranaggio' : e.status === 403 || e.status === 404 ? 'Token senza permesso Actions' : e.message;
     setStatus(p, 'err', m); toast(`${p.name}: ${m}`);
     if (e.status) setSteps(p, null);
   } finally { busy[p.id] = false; setBtn(p, false); }
@@ -141,24 +141,39 @@ async function saveToken() {
   if (!v) return;
   if (!/^(github_pat_|ghp_)/.test(v)) { $('#tokenState').textContent = 'Il codice deve iniziare con github_pat_ — hai incollato altro (' + v.slice(0, 12) + '…).'; return; }
   if (v.startsWith('github_pat_') && v.length !== 93) { $('#tokenState').textContent = 'Codice incompleto: ' + v.length + ' caratteri su 93. Copialo di nuovo con l\'icona di copia.'; return; }
+  const prev = token();
   localStorage.setItem('figsync.token', v);
   $('#tokenState').textContent = 'Verifica…';
   try {
     for (const p of PLAYERS) await gh(`/repos/${OWNER}/${p.repo}/actions/workflows/${WF}`);
+    localStorage.removeItem('figsync.dropped');
     $('#tokenState').textContent = 'Token valido per entrambi i repo.';
     refreshNotice(); setTimeout(() => $('#settings').close(), 700); toast('Token salvato');
   } catch (e) {
-    localStorage.removeItem('figsync.token');
+    if (e.status === 401) { prev && prev !== v ? localStorage.setItem('figsync.token', prev) : dropToken('GitHub ha rifiutato il token (401)'); }
+    else { $('#tokenState').textContent = 'Token salvato, ma la verifica non è riuscita (' + e.message + '). Riprova più tardi.'; refreshNotice(); return; }
     $('#tokenState').textContent = e.status === 401 ? 'GitHub non riconosce il token (401, ' + v.length + ' caratteri, finisce con …' + v.slice(-4) + '). È scaduto o è stato rigenerato dopo la copia: creane uno nuovo.' : 'Errore: ' + e.message;
   }
 }
-function refreshNotice() { $('#noToken').hidden = !!token(); }
+function dropToken(reason) {
+  localStorage.removeItem('figsync.token');
+  localStorage.setItem('figsync.dropped', JSON.stringify({ reason, at: new Date().toISOString() }));
+}
+function refreshNotice() {
+  const el = $('#noToken'); el.hidden = !!token();
+  if (token()) { localStorage.setItem('figsync.since', localStorage.getItem('figsync.since') || new Date().toISOString()); return; }
+  let why = '';
+  try { const d = JSON.parse(localStorage.getItem('figsync.dropped') || 'null'); if (d) why = `Token rimosso il ${fmt(d.at)}: ${d.reason}.`; } catch {}
+  if (!why && !localStorage.getItem('figsync.seen')) why = (navigator.standalone ? 'Prima apertura dell\'app dalla schermata Home: ha una memoria separata da Safari.' : 'Nessun token su questo browser.');
+  el.firstChild.textContent = (why ? why + ' ' : '') + 'Serve un token GitHub per avviare l\'aggiornamento. ';
+  localStorage.setItem('figsync.seen', '1');
+}
 
 $('#showToken').onclick = () => { const i = $('#tokenInput'); i.type = i.type === 'password' ? 'text' : 'password'; $('#showToken').textContent = i.type === 'password' ? 'Mostra' : 'Nascondi'; };
 $('#openSettings').onclick = openSettings;
 $('#noTokenBtn').onclick = openSettings;
 $('#saveToken').onclick = saveToken;
-$('#clearToken').onclick = () => { localStorage.removeItem('figsync.token'); $('#tokenInput').value = ''; $('#tokenState').textContent = 'Token rimosso.'; refreshNotice(); };
+$('#clearToken').onclick = () => { dropToken('rimosso a mano con il pulsante Rimuovi'); $('#tokenInput').value = ''; $('#tokenState').textContent = 'Token rimosso.'; refreshNotice(); };
 $('#runAll').onclick = () => { if (!token()) return openSettings(); PLAYERS.forEach(run); };
 
 function reloadFrame(p) { const f = document.getElementById('f-' + p.id); f.src = PAGES(p.repo) + '?t=' + Date.now(); }
@@ -176,4 +191,5 @@ const startTab = location.hash.slice(1) || localStorage.getItem('figsync.tab') |
 show(['berilli', 'pignatari', 'sync'].includes(startTab) ? startTab : 'berilli');
 PLAYERS.forEach(loadStatus);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) PLAYERS.forEach(loadStatus); });
+if (navigator.storage && navigator.storage.persist) navigator.storage.persist();
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js');
