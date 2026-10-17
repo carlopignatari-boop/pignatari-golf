@@ -64,3 +64,4 @@ input:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--accent)
 .toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 18px);transform:translate(-50%,20px);opacity:0;
   background:var(--text);color:var(--bg);padding:10px 16px;border-radius:12px;font-size:14px;font-weight:600;transition:.25s;pointer-events:none;max-width:90vw}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+.lab{display:flex;justify-content:space-between;align-items:center}.lab .link{font-size:13px}

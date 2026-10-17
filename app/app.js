@@ -125,18 +125,23 @@ async function run(p) {
 
 function openSettings() { $('#tokenInput').value = token(); $('#tokenState').textContent = token() ? 'Token salvato su questo dispositivo.' : ''; $('#settings').showModal(); }
 async function saveToken() {
-  const v = $('#tokenInput').value.trim();
+  const v = $('#tokenInput').value.replace(/[\s"'`]/g, '');
   if (!v) return;
+  if (!/^(github_pat_|ghp_)/.test(v)) { $('#tokenState').textContent = 'Il codice deve iniziare con github_pat_ — hai incollato altro (' + v.slice(0, 12) + '…).'; return; }
   localStorage.setItem('figsync.token', v);
   $('#tokenState').textContent = 'Verifica…';
   try {
     for (const p of PLAYERS) await gh(`/repos/${OWNER}/${p.repo}/actions/workflows/${WF}`);
     $('#tokenState').textContent = 'Token valido per entrambi i repo.';
     refreshNotice(); setTimeout(() => $('#settings').close(), 700); toast('Token salvato');
-  } catch (e) { $('#tokenState').textContent = 'Errore: ' + e.message; }
+  } catch (e) {
+    localStorage.removeItem('figsync.token');
+    $('#tokenState').textContent = e.status === 401 ? 'GitHub non riconosce il token (401): copia di nuovo il codice completo, oppure rigeneralo.' : 'Errore: ' + e.message;
+  }
 }
 function refreshNotice() { $('#noToken').hidden = !!token(); }
 
+$('#showToken').onclick = () => { const i = $('#tokenInput'); i.type = i.type === 'password' ? 'text' : 'password'; $('#showToken').textContent = i.type === 'password' ? 'Mostra' : 'Nascondi'; };
 $('#openSettings').onclick = openSettings;
 $('#noTokenBtn').onclick = openSettings;
 $('#saveToken').onclick = saveToken;
