@@ -128,6 +128,7 @@ async function saveToken() {
   const v = $('#tokenInput').value.replace(/[\s"'`]/g, '');
   if (!v) return;
   if (!/^(github_pat_|ghp_)/.test(v)) { $('#tokenState').textContent = 'Il codice deve iniziare con github_pat_ — hai incollato altro (' + v.slice(0, 12) + '…).'; return; }
+  if (v.startsWith('github_pat_') && v.length !== 93) { $('#tokenState').textContent = 'Codice incompleto: ' + v.length + ' caratteri su 93. Copialo di nuovo con l\'icona di copia.'; return; }
   localStorage.setItem('figsync.token', v);
   $('#tokenState').textContent = 'Verifica…';
   try {
@@ -136,7 +137,7 @@ async function saveToken() {
     refreshNotice(); setTimeout(() => $('#settings').close(), 700); toast('Token salvato');
   } catch (e) {
     localStorage.removeItem('figsync.token');
-    $('#tokenState').textContent = e.status === 401 ? 'GitHub non riconosce il token (401): copia di nuovo il codice completo, oppure rigeneralo.' : 'Errore: ' + e.message;
+    $('#tokenState').textContent = e.status === 401 ? 'GitHub non riconosce il token (401, ' + v.length + ' caratteri, finisce con …' + v.slice(-4) + '). È scaduto o è stato rigenerato dopo la copia: creane uno nuovo.' : 'Errore: ' + e.message;
   }
 }
 function refreshNotice() { $('#noToken').hidden = !!token(); }
