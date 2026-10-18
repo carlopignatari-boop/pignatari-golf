@@ -1,6 +1,25 @@
 {
   "gare": [
     {
+      "data": "17/10/2026",
+      "gara": "BANCA CESARE PONTI GOLF TROPHY",
+      "circolo": "MODENA",
+      "stbl": 28.0,
+      "ags": 107.0,
+      "pcc": 0.0,
+      "sd": 31.0,
+      "sd_est": null,
+      "cr": 72.2,
+      "sr": 127.0,
+      "idxN": 23.6,
+      "idxV": 23.6,
+      "var": 0.0,
+      "pending": false,
+      "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/cac604a1-43ca-f111-a05a-70a8a55f4fe2",
+      "top8": false,
+      "n": 1
+    },
+    {
       "data": "11/10/2026",
       "gara": "INVITATIONAL PENSKECARS",
       "circolo": "MODENA",
@@ -17,7 +36,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/d412872b-9cc5-f111-aaad-7ced8d8bfeb7",
       "top8": true,
-      "n": 1
+      "n": 2
     },
     {
       "data": "04/10/2026",
@@ -36,7 +55,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/9b295532-1dc0-f111-aaad-6045bd8d0cd6",
       "top8": false,
-      "n": 2
+      "n": 3
     },
     {
       "data": "26/09/2026",
@@ -55,7 +74,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/daff4b29-cab9-f111-aaae-000d3aa9a289",
       "top8": false,
-      "n": 3
+      "n": 4
     },
     {
       "data": "19/09/2026",
@@ -74,7 +93,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/6ef0e3f0-c2b4-f111-aaac-6045bd96fca1",
       "top8": false,
-      "n": 4
+      "n": 5
     },
     {
       "data": "12/09/2026",
@@ -93,7 +112,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/123c67c5-d0ae-f111-aaac-6045bd96fca1",
       "top8": true,
-      "n": 5
+      "n": 6
     },
     {
       "data": "29/08/2026",
@@ -111,8 +130,8 @@
       "var": 0.3,
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/e99e5f1f-cda3-f111-b8de-70a8a5a06624",
-      "top8": false,
-      "n": 6
+      "top8": true,
+      "n": 7
     },
     {
       "data": "22/08/2026",
@@ -131,7 +150,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/d9c202ef-419e-f111-b8db-70a8a560489e",
       "top8": true,
-      "n": 7
+      "n": 8
     },
     {
       "data": "20/08/2026",
@@ -150,7 +169,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/bd88e282-999c-f111-b8db-7c1e5228daa9",
       "top8": false,
-      "n": 8
+      "n": 9
     },
     {
       "data": "16/08/2026",
@@ -169,7 +188,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/2885f5db-8099-f111-b8db-7c1e524eabf7",
       "top8": false,
-      "n": 9
+      "n": 10
     },
     {
       "data": "08/08/2026",
@@ -188,7 +207,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/f7b92b5c-2e93-f111-8075-70a8a5a067d8",
       "top8": true,
-      "n": 10
+      "n": 11
     },
     {
       "data": "01/08/2026",
@@ -207,7 +226,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/ef5e80d5-be8d-f111-ab0f-70a8a5a067d8",
       "top8": false,
-      "n": 11
+      "n": 12
     },
     {
       "data": "11/07/2026",
@@ -226,7 +245,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/532f2bf5-3a7d-f111-ab0e-000d3a213cad",
       "top8": false,
-      "n": 12
+      "n": 13
     },
     {
       "data": "05/07/2026",
@@ -245,7 +264,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/02e118a3-8078-f111-ab0e-3833c5c99b81",
       "top8": false,
-      "n": 13
+      "n": 14
     },
     {
       "data": "04/07/2026",
@@ -264,7 +283,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/d37802ce-b677-f111-ab0e-000d3a4cccf0",
       "top8": false,
-      "n": 14
+      "n": 15
     },
     {
       "data": "28/06/2026",
@@ -283,7 +302,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/d86ab92d-0173-f111-ab0d-7ced8d5ad87d",
       "top8": true,
-      "n": 15
+      "n": 16
     },
     {
       "data": "27/06/2026",
@@ -302,7 +321,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/aeebf9c6-4072-f111-ab0e-6045bd8a538a",
       "top8": false,
-      "n": 16
+      "n": 17
     },
     {
       "data": "21/06/2026",
@@ -321,7 +340,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/a9a5338d-8e6d-f111-ab0d-00224882a8dd",
       "top8": true,
-      "n": 17
+      "n": 18
     },
     {
       "data": "20/06/2026",
@@ -340,7 +359,7 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/01a337da-cc6c-f111-ab0d-6045bdf30e59",
       "top8": true,
-      "n": 18
+      "n": 19
     },
     {
       "data": "07/06/2026",
@@ -359,35 +378,16 @@
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/8f3cda4a-8962-f111-a826-7ced8d59bf91",
       "top8": false,
-      "n": 19
-    },
-    {
-      "data": "06/06/2026",
-      "gara": "TROFEO ZYCAR BY MACOM",
-      "circolo": "MODENA",
-      "stbl": 29.0,
-      "ags": 103.0,
-      "pcc": 0.0,
-      "sd": 27.4,
-      "sd_est": null,
-      "cr": 72.2,
-      "sr": 127.0,
-      "idxN": 20.8,
-      "idxV": 20.8,
-      "var": 0.0,
-      "pending": false,
-      "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/568ef64a-c261-f111-a826-7ced8d59bf91",
-      "top8": true,
       "n": 20
     }
   ],
   "stats": {
     "n_best8": 8,
-    "avg_sd": 25.2,
-    "avg_stbl": 32.5,
+    "avg_sd": 25.3,
+    "avg_stbl": 32.8,
     "best_sd": 21.2,
     "idx_fig": 23.6,
-    "theoretical_idx": 25.2
+    "theoretical_idx": 25.3
   },
-  "updated_at": "17/10/2026 14:37"
+  "updated_at": "18/10/2026 02:35"
 }
