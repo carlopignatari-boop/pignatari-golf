@@ -133,7 +133,7 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{border-left:3px soli
 </head>
 <body>
 <h1>🏌️ Pignatari — Ultime 20 gare valide</h1>
-<div class="subtitle">Dati reali FIG (gare valide da 18 e 9 buche) · Aggiornato il 07/11/2026 23:18</div>
+<div class="subtitle">Dati reali FIG (gare valide da 18 e 9 buche) · Aggiornato il 07/11/2026 23:30</div>
 
 <div class="toolbar">
   <button class="btn btn-back" id="btnBack" onclick="goReal()" style="display:none">← Dati reali</button>
@@ -598,13 +598,12 @@ function calcProj() {
 render();
 </script>
 <script>
-// score_photo.js — "Carica score": lettura della scheda con Gemini + calcolo WHS buca per buca.
+// score_photo.js — "Carica score": lettura della scheda con Gemini, Perplexity o Anthropic + calcolo WHS buca per buca.
 // Contesto dato al modello (RAG leggero): campo noto (par e handicap di buca), nome del giocatore,
 // errori di lettura già corretti su questo telefono. I conti li fa l'app, non il modello.
 const SP = (() => {
   const KEY = 'figsync.gemini', MODEL_KEY = 'figsync.geminiModel', LOG = 'figsync.scorelog';
-  const MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash-lite'];
-  // Schede dei percorsi note (fonti: GolfPass, TheGrint, Golfify — par e handicap di buca coincidono)
+    // Schede dei percorsi note (fonti: GolfPass, TheGrint, Golfify — par e handicap di buca coincidono)
   const COURSES = {
     'MODENA': { nome: 'Modena Golf & Country Club — Bernhard Langer',
       par: [4,4,3,5,4,3,5,4,4, 5,3,4,5,4,3,4,3,5],
@@ -677,24 +676,46 @@ ${hints()}
 Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|null,"buche":[{"n":int,"par":int|null,"si":int|null,"colpi":int|null}],"totale_colpi_scritto":int|null,"stbl_scritto":int|null,"incerte":[int],"note":str}`;
   }
 
-  async function callGemini(b64) {
-    const key = localStorage.getItem(KEY);
-    const models = [localStorage.getItem(MODEL_KEY), ...MODELS].filter(Boolean);
+  // Fornitore riconosciuto dal prefisso della chiave: pplx- → Perplexity, sk-ant- → Anthropic, altrimenti Gemini.
+  const PROVIDERS = {
+    gemini: ['gemini-3.6-flash', 'gemini-3.5-flash-lite'],
+    perplexity: ['google/gemini-3.6-flash', 'anthropic/claude-sonnet-5-5', 'openai/gpt-5.6-terra'],
+    anthropic: ['claude-sonnet-5-5', 'claude-haiku-5-5'],
+  };
+  function provider(key) { return key.startsWith('pplx-') ? 'perplexity' : key.startsWith('sk-ant-') ? 'anthropic' : 'gemini'; }
+  function parseJson(txt) {
+    txt = (txt || '{}').replace(/^\s*```(json)?/i, '').replace(/```\s*$/, '').trim();
+    const i = txt.indexOf('{'), j = txt.lastIndexOf('}');
+    return JSON.parse(i >= 0 && j > i ? txt.slice(i, j + 1) : txt);
+  }
+  function request(prov, m, key, b64) {
+    if (prov === 'gemini') return [`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`,
+      { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+      { contents: [{ parts: [{ text: prompt() }, { inline_data: { mime_type: 'image/jpeg', data: b64 } }] }],
+        generationConfig: { temperature: 0, responseMimeType: 'application/json' } },
+      j => j.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('')];
+    if (prov === 'perplexity') return ['https://api.perplexity.ai/v1/agent',
+      { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+      { model: m, input: [{ role: 'user', content: [{ type: 'input_text', text: prompt() + '\nRispondi solo con il JSON, senza testo attorno.' },
+          { type: 'input_image', image_url: 'data:image/jpeg;base64,' + b64 }] }] },
+      j => j.output_text || (j.output || []).filter(o => o.type === 'message').flatMap(o => o.content || []).map(c => c.text || '').join('')];
+    return ['https://api.anthropic.com/v1/messages',
+      { 'Content-Type': 'application/json', 'x-api-key': key, 'anthropic-version': '2023-06-01', 'anthropic-dangerous-direct-browser-access': 'true' },
+      { model: m, max_tokens: 2000, temperature: 0, messages: [{ role: 'user', content: [
+          { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: b64 } },
+          { type: 'text', text: prompt() + '\nRispondi solo con il JSON, senza testo attorno.' }] }] },
+      j => (j.content || []).map(c => c.text || '').join('')];
+  }
+  async function callModel(b64) {
+    const key = localStorage.getItem(KEY), prov = provider(key), mk = MODEL_KEY + '.' + prov;
+    const models = [...new Set([localStorage.getItem(mk), ...PROVIDERS[prov]].filter(Boolean))];
     let lastErr = '';
-    for (const m of [...new Set(models)]) {
-      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt() }, { inline_data: { mime_type: 'image/jpeg', data: b64 } }] }],
-          generationConfig: { temperature: 0, responseMimeType: 'application/json' } }) });
-      if (r.ok) {
-        localStorage.setItem(MODEL_KEY, m);
-        const j = await r.json();
-        const txt = j.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '{}';
-        return JSON.parse(txt.replace(/^```json|```$/g, '').trim());
-      }
-      lastErr = r.status + ' ' + (await r.text()).slice(0, 160);
-      if (r.status === 400 || r.status === 401 || r.status === 403) break;  // chiave non valida: inutile provare altri modelli
+    for (const m of models) {
+      const [url, headers, body, extract] = request(prov, m, key, b64);
+      const r = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
+      if (r.ok) { localStorage.setItem(mk, m); return parseJson(extract(await r.json())); }
+      lastErr = `${prov} ${m}: ` + r.status + ' ' + (await r.text()).slice(0, 160);
+      if (r.status === 401 || r.status === 403) break;  // chiave non valida: inutile provare altri modelli
     }
     throw new Error(lastErr);
   }
@@ -703,7 +724,7 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
   function msg(html) { const el = $('spMsg'); el.innerHTML = html; el.style.display = html ? 'block' : 'none'; }
   function askKey() {
     $('spKeyRow').style.display = 'flex';
-    msg('Per leggere la foto serve una chiave Gemini (gratuita): <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">creala qui ↗</a>, poi incollala sotto. Resta salvata solo su questo telefono.');
+    msg('Per leggere la foto serve una chiave API: Gemini gratuita (<a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">creala qui ↗</a>), oppure Perplexity (pplx-…) o Anthropic (sk-ant-…). Incollala sotto: resta salvata solo su questo telefono.');
   }
   function saveKey() {
     const v = $('spKey').value.trim(); if (!v) return;
@@ -716,7 +737,7 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
     msg('📷 Leggo la scheda…'); $('spGrid').innerHTML = '';
     try {
       const b64 = await toJpeg(f);
-      const r = await callGemini(b64);
+      const r = await callModel(b64);
       read = JSON.parse(JSON.stringify(r));
       fill(r);
     } catch (e) {
