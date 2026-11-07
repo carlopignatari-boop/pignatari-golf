@@ -418,6 +418,8 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{{border-left:3px sol
       <input type="number" id="pCr" value="{cr_def}" step="0.1" inputmode="decimal"></div>
     <div class="proj-field"><label>SR</label>
       <input type="number" id="pSr" value="{sr_def}" inputmode="numeric"></div>
+    <div class="proj-field"><label>Par</label>
+      <input type="number" id="pPar" value="72" inputmode="numeric"></div>
     <button class="btn-calc" onclick="calcProj()">Calcola →</button>
   </div>
   <div class="proj-result" id="projResult"></div>
@@ -664,7 +666,16 @@ function calcProj() {
     document.getElementById('projResult').innerHTML = '⚠️ Inserisci almeno lo Stableford.';
     return;
   }
-  const ags   = agsRaw !== '' ? parseFloat(agsRaw) : 72 + (36 - stbl);
+  const par   = parseFloat(document.getElementById('pPar').value) || 72;
+  const idx   = parseFloat(IDX_FIG);
+  if (agsRaw === '' && isNaN(idx)) {
+    document.getElementById('projResult').className = 'proj-result show';
+    document.getElementById('projResult').innerHTML = '⚠️ Index FIG non disponibile: inserisci anche l\'AGS.';
+    return;
+  }
+  // Course Handicap WHS: Index × SR/113 + (CR − Par); AGS = Par + CH + (36 − Stableford)
+  const ch    = Math.round(idx * sr / 113 + (cr - par));
+  const ags   = agsRaw !== '' ? parseFloat(agsRaw) : par + ch + (36 - stbl);
   const sdEst = parseFloat(((ags - cr) * 113 / sr).toFixed(1));
   projRow = { n:'PROJ', gara:'GARA PROIETTATA', stbl, ags, cr, sr, sd_est: sdEst };
 
@@ -679,7 +690,7 @@ function calcProj() {
 
   document.getElementById('projResult').className = 'proj-result show';
   document.getElementById('projResult').innerHTML =
-    'SD stimato: <strong>' + sdEst.toFixed(1) + '</strong> &nbsp;|&nbsp; ' +
+    'SD stimato: <strong>' + sdEst.toFixed(1) + '</strong>' + (agsRaw === '' ? ' (CH ' + ch + ', AGS ' + ags + ')' : '') + ' &nbsp;|&nbsp; ' +
     (inTop8 ? '✅ <strong>Entra nelle Top 8</strong>' : '❌ Non entra nelle Top 8') +
     ' &nbsp;|&nbsp; Media Top 8: <strong>' + oldAvg + ' → ' + newAvg + '</strong> (' + dir + ')' +
     (exitG ? ' &nbsp;|&nbsp; Esce: <strong>' + exitG.gara + '</strong> (SD ' + exitG.sd.toFixed(1) + ')' : '');
