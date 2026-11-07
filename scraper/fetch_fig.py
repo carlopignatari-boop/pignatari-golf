@@ -185,6 +185,7 @@ def build_html(gare, stats, updated_at, nome, hist=None):
     last_var = next((g.get("var") for g in gare if not g.get("pending")), None)
     last_var_s = "—" if last_var is None else ("0.0" if last_var == 0 else f"{last_var:+.1f}")
     last_var_c = "var-neu" if not last_var else ("var-neg" if last_var < 0 else "var-pos")
+    _sp = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "score_photo.js"), encoding="utf-8").read()
     _eng = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "whs.js"), encoding="utf-8").read()
     # ── dati di base ─────────────────────────────────────────────────────
     cr_def = next((g["cr"] for g in gare if g.get("cr")), 72.2)
@@ -366,6 +367,25 @@ h1{{font-size:20px;font-weight:700;margin-bottom:4px}}
 .card-value.hi {{color:var(--sim)}}
 .card-value.hi2{{color:var(--proj)}}
 .card-sub{{font-size:11px;color:var(--muted)}}
+.sp-bar{{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px}}
+.sp-btn{{border-color:var(--proj);color:var(--proj)}}
+.sp-or{{font-size:11px;color:var(--muted)}}
+.sp-keyrow{{display:none;gap:8px;margin:8px 0}}
+.sp-keyrow input{{flex:1;min-width:0;background:var(--elevated);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px}}
+.sp-msg{{display:none;font-size:12px;color:var(--text);margin:8px 0;line-height:1.6}}
+.sp-msg a{{color:var(--accent)}}
+.sp-head{{font-size:12px;color:var(--muted);margin:10px 0 6px}}
+.sp-holes{{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}}
+.sp-h{{background:var(--elevated);border:1px solid var(--border);border-radius:6px;padding:4px;text-align:center}}
+.sp-h.sp-unc{{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,var(--elevated))}}
+.sp-n{{font-size:13px;font-weight:800}}
+.sp-par{{font-size:9px;color:var(--muted);line-height:1.2;min-height:22px}}
+.sp-h input{{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:4px;text-align:center;font-size:16px;font-weight:700;padding:3px 0}}
+.sp-pts{{font-size:10px;color:var(--ok);margin-top:2px}}
+.sp-tot{{font-size:13px;margin-top:8px}}
+.sp-unc-t{{color:var(--warn)}}
+.sp-warn{{font-size:12px;color:var(--warn);margin-top:6px}}
+.sp-act{{margin-top:8px}}
 .card.hero{{order:-1;grid-column:span 2;border:2px solid var(--gold);
   background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 16%,var(--card)),var(--card) 70%)}}
 .card.hero .card-label{{color:var(--gold);font-weight:700}}
@@ -439,6 +459,14 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{{border-left:3px sol
       <input type="number" id="pPcc" value="0" min="-1" max="3" inputmode="numeric"></div>
     <button class="btn-calc" onclick="calcProj()">Calcola →</button>
   </div>
+  <div class="sp-bar">
+    <button class="btn sp-btn" onclick="SP.pick()">📷 Carica score</button>
+    <span class="sp-or">oppure inserisci i dati a mano qui sopra</span>
+    <input type="file" id="spFile" accept="image/*" capture="environment" style="display:none" onchange="SP.onFile(event)">
+  </div>
+  <div class="sp-keyrow" id="spKeyRow"><input type="password" id="spKey" placeholder="chiave Gemini (AIza…)" autocomplete="off"><button class="btn-calc" onclick="SP.saveKey()">Salva</button></div>
+  <div class="sp-msg" id="spMsg"></div>
+  <div id="spGrid"></div>
   <div class="proj-result" id="projResult"></div>
 </div>
 
@@ -510,6 +538,7 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{{border-left:3px sol
     parts.append(f"const IDX_FIG = {repr(str(idx_fig))};\n")
     parts.append(f"const AVG_SD_REAL = {avg_sd};\n")
     parts.append("const WHS = (() => {\n" + _eng + "\nreturn { compute, r1 };\n})();\n")
+    parts.append("const PLAYER_NAME = " + json.dumps(nome.split()[-1]) + ";\n")
     parts.append("const HIST = " + json.dumps(hist, separators=(",", ":")) + ";\n")
     parts.append("""
 let mode = 'real';  // 'real' | 'sim' | 'proj'
@@ -748,7 +777,7 @@ function calcProj() {
   const newAvg = (newArr.slice(0,8).reduce((s,v)=>s+v,0)/8).toFixed(1);
   const inTop8 = newArr.slice(0,8).includes(sdEst);
   const exitG  = withSD[19];
-  const dir    = parseFloat(newAvg) < parseFloat(oldAvg) ? '📉 migliora' : '📈 peggiora';
+  const dir    = parseFloat(newAvg) < parseFloat(oldAvg) ? '📉 migliora' : parseFloat(newAvg) > parseFloat(oldAvg) ? '📈 peggiora' : '= invariata';
 
   document.getElementById('projResult').className = 'proj-result show';
   document.getElementById('projResult').innerHTML =
@@ -762,6 +791,9 @@ function calcProj() {
 }
 
 render();
+</script>
+<script>
+""" + _sp + """
 </script>
 </body>
 </html>
