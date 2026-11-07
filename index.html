@@ -8,7 +8,7 @@
 :root{
   --bg:#0f1117;--card:#1a1d27;--elevated:#23273a;--text:#e2e8f0;--muted:#8892a4;
   --accent:#60a5fa;--ok:#34d399;--warn:#fbbf24;--border:#2d3348;--radius:10px;
-  --sim:#a78bfa;--proj:#fb923c;
+  --sim:#a78bfa;--proj:#fb923c;--gold:#facc15;
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -66,6 +66,13 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px}
 .card-value.hi {color:var(--sim)}
 .card-value.hi2{color:var(--proj)}
 .card-sub{font-size:11px;color:var(--muted)}
+.card.hero{order:-1;grid-column:span 2;border:2px solid var(--gold);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 16%,var(--card)),var(--card) 70%)}
+.card.hero .card-label{color:var(--gold);font-weight:700}
+.card.hero .card-value{font-size:40px}
+.card.hero .card-value .var-neg,.card.hero .card-value .var-pos,.card.hero .card-value .var-neu{font-size:inherit;font-weight:800}
+.card.hero .card-sub{font-size:12px;color:var(--text)}
+.card.hero.hi{border-color:var(--sim)}.card.hero.hi2{border-color:var(--proj)}
 /* tabella */
 .table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}
 table{width:100%;border-collapse:collapse;min-width:700px}
@@ -107,7 +114,7 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{border-left:3px soli
 </head>
 <body>
 <h1>🏌️ Pignatari — Ultime 20 gare valide</h1>
-<div class="subtitle">Dati reali FIG (Valida = S) · Aggiornato il 07/11/2026 21:51</div>
+<div class="subtitle">Dati reali FIG (gare valide da 18 e 9 buche) · Aggiornato il 07/11/2026 23:10</div>
 
 <div class="toolbar">
   <button class="btn btn-back" id="btnBack" onclick="goReal()" style="display:none">← Dati reali</button>
@@ -128,6 +135,8 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{border-left:3px soli
       <input type="number" id="pSr" value="127.0" inputmode="numeric"></div>
     <div class="proj-field"><label>Par</label>
       <input type="number" id="pPar" value="72" inputmode="numeric"></div>
+    <div class="proj-field"><label>PCC</label>
+      <input type="number" id="pPcc" value="0" min="-1" max="3" inputmode="numeric"></div>
     <button class="btn-calc" onclick="calcProj()">Calcola →</button>
   </div>
   <div class="proj-result" id="projResult"></div>
@@ -143,7 +152,7 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{border-left:3px soli
   </div>
   <div class="card" id="cAvg">
     <div class="card-label">Media SD — Top 8</div>
-    <div class="card-value" id="vAvg">24.8</div>
+    <div class="card-value" id="vAvg">25.1</div>
     <div class="card-sub">Score Differenziale medio</div>
   </div>
   <div class="card" id="cBest">
@@ -153,13 +162,18 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{border-left:3px soli
   </div>
   <div class="card" id="cStbl">
     <div class="card-label">Media Stbl — Top 8</div>
-    <div class="card-value" id="vStbl">33.4</div>
+    <div class="card-value" id="vStbl">31.0</div>
     <div class="card-sub">punti Stableford medi</div>
   </div>
   <div class="card">
     <div class="card-label">Index attuale FIG</div>
     <div class="card-value">23.6</div>
     <div class="card-sub">ultimo elaborato</div>
+  </div>
+  <div class="card hero" id="cVar">
+    <div class="card-label">Variazione HCP</div>
+    <div class="card-value" id="vVar"><span class="var-neu" style="font-size:inherit">0.0</span></div>
+    <div class="card-sub" id="sVar">ultima gara elaborata</div>
   </div>
 </div>
 
@@ -174,27 +188,27 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{border-left:3px soli
   </tr>
 </thead>
 <tbody id="tbody">
-<tr  data-n="1" data-sd="" data-sd-est="30.1" data-pending="true" data-cr="72.2" data-sr="127.0" data-stbl="29.0" data-ags="106" data-gara="COPPA DEL PRESIDENTE" data-circolo="MODENA"><td>1</td><td>07/11/2026</td><td>COPPA DEL PRESIDENTE</td><td>MODENA</td><td class="num">29.0</td><td class="num">106</td><td class="num">—</td><td class="num sd-cell"><span class="badge-warn">?</span></td><td class="num">23.6</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"><span class="badge-warn">⚠ pending</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/6da3a382-c6da-f111-84e8-7c1e524f85e3" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr class="best" data-n="2" data-sd="23.8" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="36.0" data-ags="99" data-gara="BALSAMIC GOLF TROPHY 2026" data-circolo="MODENA"><td>2</td><td>31/10/2026</td><td>BALSAMIC GOLF TROPHY 2026</td><td>MODENA</td><td class="num">36.0</td><td class="num">99</td><td class="num">0.0</td><td class="num sd-cell">23.8</td><td class="num">23.6</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"><span class="badge-ok">★ TOP 8</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/fcac020b-49d5-f111-a05b-6045bd89aa9a" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr  data-n="3" data-sd="31.0" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="28.0" data-ags="107" data-gara="BANCA CESARE PONTI GOLF TROPHY" data-circolo="MODENA"><td>3</td><td>17/10/2026</td><td>BANCA CESARE PONTI GOLF TROPHY</td><td>MODENA</td><td class="num">28.0</td><td class="num">107</td><td class="num">0.0</td><td class="num sd-cell">31.0</td><td class="num">23.6</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/cac604a1-43ca-f111-a05a-70a8a55f4fe2" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr class="best" data-n="4" data-sd="24.7" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="34.0" data-ags="101" data-gara="INVITATIONAL PENSKECARS" data-circolo="MODENA"><td>4</td><td>11/10/2026</td><td>INVITATIONAL PENSKECARS</td><td>MODENA</td><td class="num">34.0</td><td class="num">101</td><td class="num">1.0</td><td class="num sd-cell">24.7</td><td class="num">23.6</td><td class="num"><span class="var-neg">-0.2</span></td><td class="top8-cell"><span class="badge-ok">★ TOP 8</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/d412872b-9cc5-f111-aaad-7ced8d8bfeb7" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr  data-n="5" data-sd="31.0" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="28.0" data-ags="107" data-gara="XX TROFEO PANATHLON CLUB MODENA" data-circolo="MODENA"><td>5</td><td>04/10/2026</td><td>XX TROFEO PANATHLON CLUB MODENA</td><td>MODENA</td><td class="num">28.0</td><td class="num">107</td><td class="num">0.0</td><td class="num sd-cell">31.0</td><td class="num">23.8</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/9b295532-1dc0-f111-aaad-6045bd8d0cd6" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr  data-n="6" data-sd="29.2" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="30.0" data-ags="105" data-gara="ROTARY ROAD TO OPORTO BY ADESSO SOLE" data-circolo="MODENA"><td>6</td><td>26/09/2026</td><td>ROTARY ROAD TO OPORTO BY ADESSO SOLE</td><td>MODENA</td><td class="num">30.0</td><td class="num">105</td><td class="num">0.0</td><td class="num sd-cell">29.2</td><td class="num">23.8</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/daff4b29-cab9-f111-aaae-000d3aa9a289" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr  data-n="7" data-sd="29.2" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="30.0" data-ags="105" data-gara="TROFEO EVO INFISSI" data-circolo="MODENA"><td>7</td><td>19/09/2026</td><td>TROFEO EVO INFISSI</td><td>MODENA</td><td class="num">30.0</td><td class="num">105</td><td class="num">0.0</td><td class="num sd-cell">29.2</td><td class="num">23.8</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/6ef0e3f0-c2b4-f111-aaac-6045bd96fca1" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr class="best" data-n="8" data-sd="26.5" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="32.0" data-ags="103" data-gara="MODULA CUP 2026" data-circolo="MODENA"><td>8</td><td>12/09/2026</td><td>MODULA CUP 2026</td><td>MODENA</td><td class="num">32.0</td><td class="num">103</td><td class="num">1.0</td><td class="num sd-cell">26.5</td><td class="num">23.8</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"><span class="badge-ok">★ TOP 8</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/123c67c5-d0ae-f111-aaac-6045bd96fca1" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr  data-n="9" data-sd="28.3" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="31.0" data-ags="104" data-gara="TOURISTGOLF & TRAVEL CUP" data-circolo="MODENA"><td>9</td><td>29/08/2026</td><td>TOURISTGOLF & TRAVEL CUP</td><td>MODENA</td><td class="num">31.0</td><td class="num">104</td><td class="num">0.0</td><td class="num sd-cell">28.3</td><td class="num">23.8</td><td class="num"><span class="var-pos">+0.3</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/e99e5f1f-cda3-f111-b8de-70a8a5a06624" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr class="best" data-n="10" data-sd="25.6" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="34.0" data-ags="101" data-gara="VOUCHER AND TRAVEL TUSCANY TASTE" data-circolo="MODENA"><td>10</td><td>22/08/2026</td><td>VOUCHER AND TRAVEL TUSCANY TASTE</td><td>MODENA</td><td class="num">34.0</td><td class="num">101</td><td class="num">0.0</td><td class="num sd-cell">25.6</td><td class="num">23.5</td><td class="num"><span class="var-neg">-0.1</span></td><td class="top8-cell"><span class="badge-ok">★ TOP 8</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/d9c202ef-419e-f111-b8db-70a8a560489e" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr  data-n="11" data-sd="35.8" data-sd-est="" data-pending="false" data-cr="72.0" data-sr="123.0" data-stbl="23.0" data-ags="111" data-gara="ITINERA TUSCANY CHALLENGE" data-circolo="MODENA"><td>11</td><td>20/08/2026</td><td>ITINERA TUSCANY CHALLENGE</td><td>MODENA</td><td class="num">23.0</td><td class="num">111</td><td class="num">0.0</td><td class="num sd-cell">35.8</td><td class="num">23.6</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/bd88e282-999c-f111-b8db-7c1e5228daa9" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr  data-n="12" data-sd="30.3" data-sd-est="" data-pending="false" data-cr="72.0" data-sr="123.0" data-stbl="28.0" data-ags="105" data-gara="GREEN PASS CARD TROPHY - 1^ PROVA" data-circolo="MODENA"><td>12</td><td>16/08/2026</td><td>GREEN PASS CARD TROPHY - 1^ PROVA</td><td>MODENA</td><td class="num">28.0</td><td class="num">105</td><td class="num">0.0</td><td class="num sd-cell">30.3</td><td class="num">23.6</td><td class="num"><span class="var-pos">+0.3</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/2885f5db-8099-f111-b8db-7c1e524eabf7" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr class="best" data-n="13" data-sd="26.8" data-sd-est="" data-pending="false" data-cr="71.4" data-sr="133.0" data-stbl="31.0" data-ags="103" data-gara="TICKET TO PARADISE" data-circolo="TERRE DI CANOSSA"><td>13</td><td>08/08/2026</td><td>TICKET TO PARADISE</td><td>TERRE DI CANOSSA</td><td class="num">31.0</td><td class="num">103</td><td class="num">0.0</td><td class="num sd-cell">26.8</td><td class="num">23.3</td><td class="num"><span class="var-pos">+0.7</span></td><td class="top8-cell"><span class="badge-ok">★ TOP 8</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/f7b92b5c-2e93-f111-8075-70a8a5a067d8" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr  data-n="14" data-sd="31.9" data-sd-est="" data-pending="false" data-cr="71.4" data-sr="133.0" data-stbl="25.0" data-ags="109" data-gara="WAGC" data-circolo="TERRE DI CANOSSA"><td>14</td><td>01/08/2026</td><td>WAGC</td><td>TERRE DI CANOSSA</td><td class="num">25.0</td><td class="num">109</td><td class="num">0.0</td><td class="num sd-cell">31.9</td><td class="num">22.6</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/ef5e80d5-be8d-f111-ab0f-70a8a5a067d8" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr  data-n="15" data-sd="31.9" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="25.0" data-ags="108" data-gara="WEGOLFERS PLAY TOUR" data-circolo="MODENA"><td>15</td><td>11/07/2026</td><td>WEGOLFERS PLAY TOUR</td><td>MODENA</td><td class="num">25.0</td><td class="num">108</td><td class="num">0.0</td><td class="num sd-cell">31.9</td><td class="num">22.3</td><td class="num"><span class="var-pos">+0.1</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/532f2bf5-3a7d-f111-ab0e-000d3a213cad" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr  data-n="16" data-sd="31.9" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="24.0" data-ags="108" data-gara="GOLF MONKEY" data-circolo="MODENA"><td>16</td><td>05/07/2026</td><td>GOLF MONKEY</td><td>MODENA</td><td class="num">24.0</td><td class="num">108</td><td class="num">0.0</td><td class="num sd-cell">31.9</td><td class="num">22.2</td><td class="num"><span class="var-pos">+1.0</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/02e118a3-8078-f111-ab0e-3833c5c99b81" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr  data-n="17" data-sd="31.0" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="25.0" data-ags="107" data-gara="WEEKLY BPER BANCA CUP" data-circolo="MODENA"><td>17</td><td>04/07/2026</td><td>WEEKLY BPER BANCA CUP</td><td>MODENA</td><td class="num">25.0</td><td class="num">107</td><td class="num">0.0</td><td class="num sd-cell">31.0</td><td class="num">21.2</td><td class="num"><span class="var-pos">+0.2</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/d37802ce-b677-f111-ab0e-000d3a4cccf0" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr class="best" data-n="18" data-sd="25.6" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="31.0" data-ags="101" data-gara="I CHALLENGE EMILIA-ROMAGNA GOLF AMATEUR" data-circolo="MODENA"><td>18</td><td>28/06/2026</td><td>I CHALLENGE EMILIA-ROMAGNA GOLF AMATEUR</td><td>MODENA</td><td class="num">31.0</td><td class="num">101</td><td class="num">0.0</td><td class="num sd-cell">25.6</td><td class="num">21.0</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"><span class="badge-ok">★ TOP 8</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/d86ab92d-0173-f111-ab0d-7ced8d5ad87d" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr  data-n="19" data-sd="30.1" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="25.0" data-ags="106" data-gara="WEEKLY BPER BANCA CUP - 4^ Prova" data-circolo="MODENA"><td>19</td><td>27/06/2026</td><td>WEEKLY BPER BANCA CUP - 4^ Prova</td><td>MODENA</td><td class="num">25.0</td><td class="num">106</td><td class="num">0.0</td><td class="num sd-cell">30.1</td><td class="num">21.0</td><td class="num"><span class="var-pos">+0.3</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/aeebf9c6-4072-f111-ab0e-6045bd8a538a" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr class="best" data-n="20" data-sd="21.2" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="36.0" data-ags="96" data-gara="DOMINA GOLF TELEVISION IN TOUR 2026" data-circolo="MODENA"><td>20</td><td>21/06/2026</td><td>DOMINA GOLF TELEVISION IN TOUR 2026</td><td>MODENA</td><td class="num">36.0</td><td class="num">96</td><td class="num">0.0</td><td class="num sd-cell">21.2</td><td class="num">20.7</td><td class="num"><span class="var-neg">-0.4</span></td><td class="top8-cell"><span class="badge-ok">★ TOP 8</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/a9a5338d-8e6d-f111-ab0d-00224882a8dd" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
-<tr class="best" data-n="21" data-sd="23.8" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="33.0" data-ags="99" data-gara="MERCEDESTROPHY 2026" data-circolo="MODENA"><td>21</td><td>20/06/2026</td><td>MERCEDESTROPHY 2026</td><td>MODENA</td><td class="num">33.0</td><td class="num">99</td><td class="num">0.0</td><td class="num sd-cell">23.8</td><td class="num">21.1</td><td class="num"><span class="var-neg">-0.2</span></td><td class="top8-cell"><span class="badge-ok">★ TOP 8</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/01a337da-cc6c-f111-ab0d-6045bdf30e59" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr  data-n="1" data-date="07/11/2026" data-sd="" data-sd-est="29.2" data-pending="true" data-cr="72.2" data-sr="127.0" data-stbl="29.0" data-ags="106" data-gara="COPPA DEL PRESIDENTE" data-circolo="MODENA"><td>1</td><td>07/11/2026</td><td>COPPA DEL PRESIDENTE</td><td>MODENA</td><td class="num">29.0</td><td class="num">106</td><td class="num">1.0</td><td class="num sd-cell"><span class="badge-warn">?</span></td><td class="num">23.6</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"><span class="badge-warn">⚠ pending</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/6da3a382-c6da-f111-84e8-7c1e524f85e3" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr class="best" data-n="2" data-date="31/10/2026" data-sd="23.8" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="36.0" data-ags="99" data-gara="BALSAMIC GOLF TROPHY 2026" data-circolo="MODENA"><td>2</td><td>31/10/2026</td><td>BALSAMIC GOLF TROPHY 2026</td><td>MODENA</td><td class="num">36.0</td><td class="num">99</td><td class="num">0.0</td><td class="num sd-cell">23.8</td><td class="num">23.6</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"><span class="badge-ok">★ TOP 8</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/fcac020b-49d5-f111-a05b-6045bd89aa9a" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr  data-n="3" data-date="17/10/2026" data-sd="31.0" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="28.0" data-ags="107" data-gara="BANCA CESARE PONTI GOLF TROPHY" data-circolo="MODENA"><td>3</td><td>17/10/2026</td><td>BANCA CESARE PONTI GOLF TROPHY</td><td>MODENA</td><td class="num">28.0</td><td class="num">107</td><td class="num">0.0</td><td class="num sd-cell">31.0</td><td class="num">23.6</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/cac604a1-43ca-f111-a05a-70a8a55f4fe2" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr class="best" data-n="4" data-date="11/10/2026" data-sd="24.7" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="34.0" data-ags="101" data-gara="INVITATIONAL PENSKECARS" data-circolo="MODENA"><td>4</td><td>11/10/2026</td><td>INVITATIONAL PENSKECARS</td><td>MODENA</td><td class="num">34.0</td><td class="num">101</td><td class="num">1.0</td><td class="num sd-cell">24.7</td><td class="num">23.6</td><td class="num"><span class="var-neg">-0.2</span></td><td class="top8-cell"><span class="badge-ok">★ TOP 8</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/d412872b-9cc5-f111-aaad-7ced8d8bfeb7" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr  data-n="5" data-date="04/10/2026" data-sd="31.0" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="28.0" data-ags="107" data-gara="XX TROFEO PANATHLON CLUB MODENA" data-circolo="MODENA"><td>5</td><td>04/10/2026</td><td>XX TROFEO PANATHLON CLUB MODENA</td><td>MODENA</td><td class="num">28.0</td><td class="num">107</td><td class="num">0.0</td><td class="num sd-cell">31.0</td><td class="num">23.8</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/9b295532-1dc0-f111-aaad-6045bd8d0cd6" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr  data-n="6" data-date="26/09/2026" data-sd="29.2" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="30.0" data-ags="105" data-gara="ROTARY ROAD TO OPORTO BY ADESSO SOLE" data-circolo="MODENA"><td>6</td><td>26/09/2026</td><td>ROTARY ROAD TO OPORTO BY ADESSO SOLE</td><td>MODENA</td><td class="num">30.0</td><td class="num">105</td><td class="num">0.0</td><td class="num sd-cell">29.2</td><td class="num">23.8</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/daff4b29-cab9-f111-aaae-000d3aa9a289" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr  data-n="7" data-date="19/09/2026" data-sd="29.2" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="30.0" data-ags="105" data-gara="TROFEO EVO INFISSI" data-circolo="MODENA"><td>7</td><td>19/09/2026</td><td>TROFEO EVO INFISSI</td><td>MODENA</td><td class="num">30.0</td><td class="num">105</td><td class="num">0.0</td><td class="num sd-cell">29.2</td><td class="num">23.8</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/6ef0e3f0-c2b4-f111-aaac-6045bd96fca1" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr class="best" data-n="8" data-date="12/09/2026" data-sd="26.5" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="32.0" data-ags="103" data-gara="MODULA CUP 2026" data-circolo="MODENA"><td>8</td><td>12/09/2026</td><td>MODULA CUP 2026</td><td>MODENA</td><td class="num">32.0</td><td class="num">103</td><td class="num">1.0</td><td class="num sd-cell">26.5</td><td class="num">23.8</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"><span class="badge-ok">★ TOP 8</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/123c67c5-d0ae-f111-aaac-6045bd96fca1" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr  data-n="9" data-date="29/08/2026" data-sd="28.3" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="31.0" data-ags="104" data-gara="TOURISTGOLF & TRAVEL CUP" data-circolo="MODENA"><td>9</td><td>29/08/2026</td><td>TOURISTGOLF & TRAVEL CUP</td><td>MODENA</td><td class="num">31.0</td><td class="num">104</td><td class="num">0.0</td><td class="num sd-cell">28.3</td><td class="num">23.8</td><td class="num"><span class="var-pos">+0.3</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/e99e5f1f-cda3-f111-b8de-70a8a5a06624" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr class="best" data-n="10" data-date="22/08/2026" data-sd="25.6" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="34.0" data-ags="101" data-gara="VOUCHER AND TRAVEL TUSCANY TASTE" data-circolo="MODENA"><td>10</td><td>22/08/2026</td><td>VOUCHER AND TRAVEL TUSCANY TASTE</td><td>MODENA</td><td class="num">34.0</td><td class="num">101</td><td class="num">0.0</td><td class="num sd-cell">25.6</td><td class="num">23.5</td><td class="num"><span class="var-neg">-0.1</span></td><td class="top8-cell"><span class="badge-ok">★ TOP 8</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/d9c202ef-419e-f111-b8db-70a8a560489e" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr  data-n="11" data-date="20/08/2026" data-sd="35.8" data-sd-est="" data-pending="false" data-cr="72.0" data-sr="123.0" data-stbl="23.0" data-ags="111" data-gara="ITINERA TUSCANY CHALLENGE" data-circolo="MODENA"><td>11</td><td>20/08/2026</td><td>ITINERA TUSCANY CHALLENGE</td><td>MODENA</td><td class="num">23.0</td><td class="num">111</td><td class="num">0.0</td><td class="num sd-cell">35.8</td><td class="num">23.6</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/bd88e282-999c-f111-b8db-7c1e5228daa9" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr  data-n="12" data-date="16/08/2026" data-sd="30.3" data-sd-est="" data-pending="false" data-cr="72.0" data-sr="123.0" data-stbl="28.0" data-ags="105" data-gara="GREEN PASS CARD TROPHY - 1^ PROVA" data-circolo="MODENA"><td>12</td><td>16/08/2026</td><td>GREEN PASS CARD TROPHY - 1^ PROVA</td><td>MODENA</td><td class="num">28.0</td><td class="num">105</td><td class="num">0.0</td><td class="num sd-cell">30.3</td><td class="num">23.6</td><td class="num"><span class="var-pos">+0.3</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/2885f5db-8099-f111-b8db-7c1e524eabf7" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr class="best" data-n="13" data-date="08/08/2026" data-sd="26.8" data-sd-est="" data-pending="false" data-cr="71.4" data-sr="133.0" data-stbl="31.0" data-ags="103" data-gara="TICKET TO PARADISE" data-circolo="TERRE DI CANOSSA"><td>13</td><td>08/08/2026</td><td>TICKET TO PARADISE</td><td>TERRE DI CANOSSA</td><td class="num">31.0</td><td class="num">103</td><td class="num">0.0</td><td class="num sd-cell">26.8</td><td class="num">23.3</td><td class="num"><span class="var-pos">+0.7</span></td><td class="top8-cell"><span class="badge-ok">★ TOP 8</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/f7b92b5c-2e93-f111-8075-70a8a5a067d8" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr  data-n="14" data-date="01/08/2026" data-sd="31.9" data-sd-est="" data-pending="false" data-cr="71.4" data-sr="133.0" data-stbl="25.0" data-ags="109" data-gara="WAGC" data-circolo="TERRE DI CANOSSA"><td>14</td><td>01/08/2026</td><td>WAGC</td><td>TERRE DI CANOSSA</td><td class="num">25.0</td><td class="num">109</td><td class="num">0.0</td><td class="num sd-cell">31.9</td><td class="num">22.6</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/ef5e80d5-be8d-f111-ab0f-70a8a5a067d8" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr class="best" data-n="15" data-date="18/07/2026" data-sd="27.0" data-sd-est="" data-pending="false" data-cr="36.0" data-sr="123.0" data-stbl="14.0" data-ags="52" data-gara="WEEKLY BPER BANCA CUP - 4^ Prova 9 Buche" data-circolo="MODENA"><td>15</td><td>18/07/2026</td><td>WEEKLY BPER BANCA CUP - 4^ Prova 9 Buche</td><td>MODENA</td><td class="num">14.0</td><td class="num">52</td><td class="num">1.0</td><td class="num sd-cell">27.0</td><td class="num">22.6</td><td class="num"><span class="var-pos">+0.3</span></td><td class="top8-cell"><span class="badge-ok">★ TOP 8</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/b4aefb12-cc82-f111-ab0f-000d3a4cccf0" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr  data-n="16" data-date="11/07/2026" data-sd="31.9" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="25.0" data-ags="108" data-gara="WEGOLFERS PLAY TOUR" data-circolo="MODENA"><td>16</td><td>11/07/2026</td><td>WEGOLFERS PLAY TOUR</td><td>MODENA</td><td class="num">25.0</td><td class="num">108</td><td class="num">0.0</td><td class="num sd-cell">31.9</td><td class="num">22.3</td><td class="num"><span class="var-pos">+0.1</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/532f2bf5-3a7d-f111-ab0e-000d3a213cad" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr  data-n="17" data-date="05/07/2026" data-sd="31.9" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="24.0" data-ags="108" data-gara="GOLF MONKEY" data-circolo="MODENA"><td>17</td><td>05/07/2026</td><td>GOLF MONKEY</td><td>MODENA</td><td class="num">24.0</td><td class="num">108</td><td class="num">0.0</td><td class="num sd-cell">31.9</td><td class="num">22.2</td><td class="num"><span class="var-pos">+1.0</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/02e118a3-8078-f111-ab0e-3833c5c99b81" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr  data-n="18" data-date="04/07/2026" data-sd="31.0" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="25.0" data-ags="107" data-gara="WEEKLY BPER BANCA CUP" data-circolo="MODENA"><td>18</td><td>04/07/2026</td><td>WEEKLY BPER BANCA CUP</td><td>MODENA</td><td class="num">25.0</td><td class="num">107</td><td class="num">0.0</td><td class="num sd-cell">31.0</td><td class="num">21.2</td><td class="num"><span class="var-pos">+0.2</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/d37802ce-b677-f111-ab0e-000d3a4cccf0" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr class="best" data-n="19" data-date="28/06/2026" data-sd="25.6" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="31.0" data-ags="101" data-gara="I CHALLENGE EMILIA-ROMAGNA GOLF AMATEUR" data-circolo="MODENA"><td>19</td><td>28/06/2026</td><td>I CHALLENGE EMILIA-ROMAGNA GOLF AMATEUR</td><td>MODENA</td><td class="num">31.0</td><td class="num">101</td><td class="num">0.0</td><td class="num sd-cell">25.6</td><td class="num">21.0</td><td class="num"><span class="var-neu">—</span></td><td class="top8-cell"><span class="badge-ok">★ TOP 8</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/d86ab92d-0173-f111-ab0d-7ced8d5ad87d" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr  data-n="20" data-date="27/06/2026" data-sd="30.1" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="25.0" data-ags="106" data-gara="WEEKLY BPER BANCA CUP - 4^ Prova" data-circolo="MODENA"><td>20</td><td>27/06/2026</td><td>WEEKLY BPER BANCA CUP - 4^ Prova</td><td>MODENA</td><td class="num">25.0</td><td class="num">106</td><td class="num">0.0</td><td class="num sd-cell">30.1</td><td class="num">21.0</td><td class="num"><span class="var-pos">+0.3</span></td><td class="top8-cell"></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/aeebf9c6-4072-f111-ab0e-6045bd8a538a" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
+<tr class="best" data-n="21" data-date="21/06/2026" data-sd="21.2" data-sd-est="" data-pending="false" data-cr="72.2" data-sr="127.0" data-stbl="36.0" data-ags="96" data-gara="DOMINA GOLF TELEVISION IN TOUR 2026" data-circolo="MODENA"><td>21</td><td>21/06/2026</td><td>DOMINA GOLF TELEVISION IN TOUR 2026</td><td>MODENA</td><td class="num">36.0</td><td class="num">96</td><td class="num">0.0</td><td class="num sd-cell">21.2</td><td class="num">20.7</td><td class="num"><span class="var-neg">-0.4</span></td><td class="top8-cell"><span class="badge-ok">★ TOP 8</span></td><td class="link-cell"><a href="https://areariservata.federgolf.it/Risultati/ViewDetail/a9a5338d-8e6d-f111-ab0d-00224882a8dd" target="_blank" rel="noopener noreferrer">↗ scheda</a></td></tr>
 </tbody>
 </table>
 </div>
@@ -207,6 +221,7 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{border-left:3px soli
 <script>
 const ROWS = Array.from(document.querySelectorAll('#tbody tr')).map(tr => ({
   n:       tr.dataset.n,
+  date:    tr.dataset.date,
   gara:    tr.dataset.gara,
   circolo: tr.dataset.circolo,
   sd:      tr.dataset.sd    !== '' ? parseFloat(tr.dataset.sd)    : null,
@@ -221,9 +236,111 @@ const ROWS = Array.from(document.querySelectorAll('#tbody tr')).map(tr => ({
 const CR_DEF = 72.2;
 const SR_DEF = 127.0;
 const IDX_FIG = '23.6';
-const AVG_SD_REAL = 24.8;
+const AVG_SD_REAL = 25.1;
+const WHS = (() => {
+// Motore WHS — replica del calcolo Handicap Index FIG (Regole di Handicap WHS, rev. 2024)
+'use strict';
+const r1 = x => Math.round((x + 1e-9) * 10) / 10;       // arrotondamento al decimo (metà per eccesso)
+// Tabella 5.2a: [n migliori, correzione] per numero di SD disponibili
+function table(n) {
+  if (n >= 20) return [8, 0];
+  if (n === 19) return [7, 0];
+  if (n >= 17) return [6, 0];
+  if (n >= 15) return [5, 0];
+  if (n >= 12) return [4, 0];
+  if (n >= 9)  return [3, 0];
+  if (n >= 7)  return [2, 0];
+  if (n === 6) return [2, -1];
+  if (n === 5) return [1, 0];
+  if (n === 4) return [1, -1];
+  if (n === 3) return [1, -2];
+  return [0, 0];
+}
+const parseDate = s => { const [d, m, y] = s.split('/').map(Number); return new Date(Date.UTC(y, m - 1, d)); };
+const DAY = 86400000;
+
+/**
+ * scores: array cronologico {date:'gg/mm/aaaa', sd:Number, hiAtPlay?:Number}
+ * opts: { seedHistory: [{date, hi}] per Low HI iniziale, capOrder: 'esr-then-cap' | 'cap-then-esr', maxHI: 54 }
+ * Ritorna per ogni score: { hi, raw, best:[indici], esr, corr:[per score], lowHI, cap }
+ */
+function compute(scores, opts = {}) {
+  const maxHI = opts.maxHI ?? 54;
+  const rec = [];                 // {date, sd, adj}
+  const hiHist = [...(opts.seedHistory || [])].map(h => ({ t: parseDate(h.date).getTime(), hi: h.hi }));
+  let hi = opts.startHI ?? null;
+  const lowAnchor = opts.lowAnchor ?? 'prev', lowDays = opts.lowDays ?? 366, lowCarry = opts.lowCarry ?? false, capOnRounded = opts.capOnRounded ?? true;
+  let prevT = null;
+  const out = [];
+  for (const s of scores) {
+    const t = parseDate(s.date).getTime();
+    const hiPlay = s.hiAtPlay ?? hi;
+    rec.push({ date: s.date, sd: s.sd, adj: 0 });
+    // ESR (5.9): confronto con l'index al momento del gioco
+    let esr = 0;
+    if (hiPlay != null) {
+      const diff = r1(hiPlay - s.sd);
+      if (diff >= 10) esr = -2; else if (diff >= 7) esr = -1;
+    }
+    if (esr) rec.slice(-20).forEach(x => x.adj += esr);
+    const last = rec.slice(-20);
+    const [k, adjT] = table(last.length);
+    if (!k) { out.push({ hi: null }); continue; }
+    const vals = last.map((x, i) => ({ v: r1(x.sd + x.adj), i })).sort((a, b) => a.v - b.v).slice(0, k);
+    const avgU = vals.reduce((a, b) => a + b.v, 0) / k + adjT;
+    let calc = r1(avgU);
+    const raw = calc;
+    const base = capOnRounded ? calc : avgU;
+    // Low HI: minimo index nei 365 giorni precedenti la data dello score più recente (serve record di 20)
+    let lowHI = null, cap = '';
+    if (rec.length >= 20) {
+      // index in vigore nella finestra: quelli calcolati nei 365 giorni + quello già in vigore all'inizio della finestra
+      const anchor = lowAnchor === 'prev' && prevT != null ? prevT : t;
+      const w0 = anchor - lowDays * DAY;
+      const hs = hiHist.filter(h => h.t >= w0 && h.t < t).map(h => h.hi);
+      const before = hiHist.filter(h => h.t < w0);
+      if (lowCarry && before.length) hs.push(before[before.length - 1].hi);
+      if (hs.length) lowHI = Math.min(...hs);
+    }
+    if (lowHI != null && r1(base - lowHI) > 3.0) {
+      const soft = r1(lowHI + 3 + (base - lowHI - 3) / 2);
+      calc = Math.min(soft, r1(lowHI + 5)); cap = calc === r1(lowHI + 5) ? 'hard' : 'soft';
+    }
+    hi = Math.min(calc, maxHI);
+    hiHist.push({ t, hi }); prevT = t;
+    out.push({ hi, raw, best: vals.map(v => rec.length - last.length + v.i), esr, lowHI, cap, corr: rec.map(x => x.adj) });
+  }
+  return { out, rec };
+}
+if (typeof module !== 'undefined') module.exports = { compute, table, r1 };
+
+return { compute, r1 };
+})();
+const HIST = [{"d":"14/04/2021","sd":21.7,"iv":17.3,"in":17.3},{"d":"18/07/2021","sd":22.8,"iv":17.3,"in":17.3},{"d":"22/07/2021","sd":22.8,"iv":17.3,"in":17.3},{"d":"24/07/2021","sd":19.2,"iv":17.3,"in":17.3},{"d":"25/07/2021","sd":24.5,"iv":17.3,"in":17.8},{"d":"31/07/2021","sd":29.0,"iv":17.8,"in":18.4},{"d":"01/08/2021","sd":21.0,"iv":18.4,"in":18.4},{"d":"06/08/2021","sd":23.7,"iv":18.4,"in":18.7},{"d":"07/08/2021","sd":20.1,"iv":18.7,"in":18.9},{"d":"25/09/2021","sd":18.4,"iv":18.9,"in":18.9},{"d":"31/10/2021","sd":22.8,"iv":19.0,"in":19.4},{"d":"19/12/2021","sd":22.8,"iv":19.4,"in":19.6},{"d":"19/02/2022","sd":27.2,"iv":19.6,"in":20.2},{"d":"27/02/2022","sd":28.1,"iv":20.2,"in":20.6},{"d":"28/05/2022","sd":24.5,"iv":20.6,"in":20.6},{"d":"04/06/2022","sd":28.1,"iv":20.6,"in":20.6},{"d":"09/06/2022","sd":22.8,"iv":20.6,"in":20.6},{"d":"12/06/2022","sd":22.8,"iv":20.6,"in":20.7},{"d":"21/09/2022","sd":24.5,"iv":20.7,"in":20.7},{"d":"24/09/2022","sd":21.9,"iv":20.7,"in":21.0},{"d":"25/09/2022","sd":24.5,"iv":21.0,"in":21.1},{"d":"09/10/2022","sd":21.0,"iv":21.1,"in":20.9},{"d":"12/10/2022","sd":15.7,"iv":20.9,"in":20.0},{"d":"15/10/2022","sd":22.8,"iv":20.0,"in":20.5},{"d":"16/10/2022","sd":27.2,"iv":20.5,"in":20.5},{"d":"20/10/2022","sd":21.9,"iv":20.5,"in":20.4},{"d":"22/10/2022","sd":21.9,"iv":20.4,"in":20.5},{"d":"27/10/2022","sd":31.6,"iv":20.5,"in":20.5},{"d":"30/10/2022","sd":29.0,"iv":20.5,"in":20.8},{"d":"01/11/2022","sd":16.6,"iv":20.8,"in":20.6},{"d":"03/11/2022","sd":23.7,"iv":20.6,"in":20.6},{"d":"05/11/2022","sd":21.9,"iv":20.6,"in":20.5},{"d":"06/11/2022","sd":26.3,"iv":20.5,"in":20.5},{"d":"25/04/2023","sd":34.3,"iv":20.5,"in":20.5},{"d":"29/04/2023","sd":22.8,"iv":20.5,"in":20.5},{"d":"30/04/2023","sd":31.6,"iv":20.5,"in":20.5},{"d":"01/05/2023","sd":26.3,"iv":20.5,"in":20.5},{"d":"06/05/2023","sd":21.0,"iv":20.5,"in":20.2},{"d":"06/06/2023","sd":22.8,"iv":20.2,"in":20.2},{"d":"29/07/2023","sd":29.0,"iv":20.2,"in":20.4},{"d":"30/07/2023","sd":19.2,"iv":20.4,"in":19.9},{"d":"03/08/2023","sd":18.4,"iv":19.9,"in":19.6},{"d":"05/08/2023","sd":28.1,"iv":19.6,"in":20.5},{"d":"06/08/2023","sd":27.2,"iv":20.5,"in":20.5},{"d":"12/08/2023","sd":18.4,"iv":20.5,"in":19.9},{"d":"17/08/2023","sd":21.0,"iv":19.9,"in":19.8},{"d":"19/08/2023","sd":19.2,"iv":19.8,"in":19.5},{"d":"24/08/2023","sd":26.3,"iv":19.5,"in":19.5},{"d":"26/08/2023","sd":19.2,"iv":19.5,"in":19.1},{"d":"31/08/2023","sd":20.1,"iv":19.1,"in":19.6},{"d":"02/09/2023","sd":23.7,"iv":19.6,"in":19.6},{"d":"07/09/2023","sd":18.4,"iv":19.6,"in":19.2},{"d":"09/09/2023","sd":26.3,"iv":19.2,"in":19.2},{"d":"10/09/2023","sd":20.1,"iv":19.2,"in":19.1},{"d":"28/09/2023","sd":30.7,"iv":19.1,"in":19.1},{"d":"30/09/2023","sd":22.8,"iv":19.1,"in":19.1},{"d":"01/10/2023","sd":29.0,"iv":19.1,"in":19.1},{"d":"08/10/2023","sd":28.1,"iv":19.1,"in":19.1},{"d":"11/10/2023","sd":20.1,"iv":19.1,"in":19.1},{"d":"15/10/2023","sd":22.8,"iv":19.1,"in":19.1},{"d":"21/10/2023","sd":20.1,"iv":19.1,"in":19.2},{"d":"22/10/2023","sd":23.7,"iv":19.2,"in":19.5},{"d":"28/10/2023","sd":28.1,"iv":19.5,"in":19.5},{"d":"29/10/2023","sd":23.7,"iv":19.5,"in":19.5},{"d":"16/11/2023","sd":19.2,"iv":19.5,"in":19.6},{"d":"18/11/2023","sd":22.8,"iv":19.6,"in":19.6},{"d":"03/12/2023","sd":24.5,"iv":19.6,"in":20.0},{"d":"08/12/2023","sd":27.2,"iv":20.0,"in":20.0},{"d":"10/12/2023","sd":22.8,"iv":20.0,"in":20.5},{"d":"16/12/2023","sd":27.2,"iv":20.5,"in":20.8},{"d":"17/12/2023","sd":21.9,"iv":20.8,"in":20.7},{"d":"21/12/2023","sd":18.4,"iv":20.7,"in":20.7},{"d":"30/12/2023","sd":23.7,"iv":20.7,"in":20.7},{"d":"04/01/2024","sd":25.4,"iv":20.7,"in":21.0},{"d":"11/01/2024","sd":26.3,"iv":21.0,"in":21.0},{"d":"27/01/2024","sd":16.6,"iv":21.0,"in":20.2},{"d":"04/02/2024","sd":21.0,"iv":20.2,"in":20.0},{"d":"11/02/2024","sd":30.7,"iv":20.0,"in":20.0},{"d":"17/02/2024","sd":18.4,"iv":20.0,"in":19.8},{"d":"22/02/2024","sd":35.1,"iv":19.8,"in":19.8},{"d":"25/02/2024","sd":23.7,"iv":19.8,"in":20.1},{"d":"02/03/2024","sd":21.0,"iv":20.1,"in":20.1},{"d":"09/03/2024","sd":19.2,"iv":19.9,"in":19.5},{"d":"17/03/2024","sd":34.3,"iv":19.5,"in":19.5},{"d":"30/03/2024","sd":16.6,"iv":19.5,"in":19.1},{"d":"01/04/2024","sd":27.2,"iv":19.1,"in":19.1},{"d":"06/04/2024","sd":26.3,"iv":19.1,"in":19.1},{"d":"13/04/2024","sd":37.4,"iv":19.1,"in":19.1},{"d":"14/04/2024","sd":24.5,"iv":19.1,"in":19.1},{"d":"21/04/2024","sd":21.0,"iv":19.1,"in":19.0},{"d":"27/04/2024","sd":28.1,"iv":19.0,"in":19.0},{"d":"04/05/2024","sd":21.0,"iv":19.0,"in":19.4},{"d":"12/05/2024","sd":25.4,"iv":19.4,"in":19.4},{"d":"18/05/2024","sd":22.8,"iv":19.4,"in":19.4},{"d":"19/05/2024","sd":27.2,"iv":19.4,"in":19.4},{"d":"23/05/2024","sd":23.7,"iv":19.4,"in":20.1},{"d":"16/06/2024","sd":17.5,"iv":20.1,"in":19.7},{"d":"04/07/2024","sd":28.1,"iv":19.7,"in":19.7},{"d":"06/07/2024","sd":24.5,"iv":19.7,"in":20.4},{"d":"07/07/2024","sd":24.5,"iv":20.4,"in":20.4},{"d":"14/07/2024","sd":19.2,"iv":20.4,"in":19.8},{"d":"20/07/2024","sd":15.7,"iv":19.8,"in":19.1},{"d":"27/07/2024","sd":22.8,"iv":19.1,"in":19.6},{"d":"01/08/2024","sd":28.1,"iv":19.6,"in":19.6},{"d":"03/08/2024","sd":26.3,"iv":19.6,"in":20.5},{"d":"08/08/2024","sd":22.8,"iv":20.5,"in":20.4},{"d":"10/08/2024","sd":29.0,"iv":20.4,"in":20.4},{"d":"17/08/2024","sd":17.5,"iv":20.4,"in":19.7},{"d":"18/08/2024","sd":20.1,"iv":19.7,"in":19.4},{"d":"22/08/2024","sd":28.1,"iv":19.4,"in":19.6},{"d":"24/08/2024","sd":23.7,"iv":19.6,"in":19.6},{"d":"25/08/2024","sd":23.7,"iv":19.6,"in":19.8},{"d":"29/08/2024","sd":30.7,"iv":19.8,"in":19.8},{"d":"31/08/2024","sd":25.4,"iv":19.8,"in":19.9},{"d":"07/09/2024","sd":19.2,"iv":19.9,"in":19.4},{"d":"14/09/2024","sd":28.1,"iv":19.4,"in":19.4},{"d":"28/09/2024","sd":28.1,"iv":19.4,"in":20.1},{"d":"05/10/2024","sd":23.7,"iv":20.1,"in":20.1},{"d":"12/10/2024","sd":25.4,"iv":20.1,"in":20.1},{"d":"26/10/2024","sd":30.7,"iv":20.1,"in":20.1},{"d":"27/10/2024","sd":30.7,"iv":20.1,"in":20.7},{"d":"09/11/2024","sd":25.4,"iv":20.7,"in":21.7},{"d":"10/11/2024","sd":28.1,"iv":21.7,"in":22.0},{"d":"24/11/2024","sd":21.9,"iv":22.0,"in":21.6},{"d":"30/11/2024","sd":28.1,"iv":21.6,"in":21.6},{"d":"07/12/2024","sd":22.8,"iv":21.6,"in":21.6},{"d":"14/12/2024","sd":22.8,"iv":21.6,"in":21.5},{"d":"28/12/2024","sd":24.5,"iv":21.5,"in":22.1},{"d":"05/01/2025","sd":19.2,"iv":22.1,"in":22.1},{"d":"06/01/2025","sd":17.5,"iv":22.1,"in":21.4},{"d":"11/01/2025","sd":20.1,"iv":21.4,"in":20.9},{"d":"16/02/2025","sd":21.9,"iv":20.9,"in":20.7},{"d":"23/02/2025","sd":30.7,"iv":20.7,"in":20.7},{"d":"02/03/2025","sd":23.7,"iv":20.7,"in":20.7},{"d":"09/03/2025","sd":27.2,"iv":20.7,"in":21.2},{"d":"16/03/2025","sd":28.1,"iv":21.2,"in":21.2},{"d":"23/03/2025","sd":34.3,"iv":21.2,"in":21.2},{"d":"30/03/2025","sd":24.5,"iv":21.2,"in":21.2},{"d":"06/04/2025","sd":29.0,"iv":21.2,"in":21.2},{"d":"12/04/2025","sd":25.4,"iv":21.2,"in":21.2},{"d":"21/04/2025","sd":22.8,"iv":21.2,"in":21.1},{"d":"26/04/2025","sd":29.0,"iv":21.1,"in":21.1},{"d":"03/05/2025","sd":24.5,"iv":21.1,"in":21.1},{"d":"11/05/2025","sd":26.3,"iv":21.1,"in":21.4},{"d":"18/05/2025","sd":29.0,"iv":21.4,"in":21.4},{"d":"25/05/2025","sd":16.6,"iv":21.4,"in":20.6},{"d":"31/05/2025","sd":18.4,"iv":20.6,"in":20.0},{"d":"01/06/2025","sd":28.1,"iv":20.0,"in":20.0},{"d":"02/06/2025","sd":18.4,"iv":20.0,"in":19.9},{"d":"22/06/2025","sd":24.5,"iv":19.9,"in":20.8},{"d":"28/06/2025","sd":24.5,"iv":20.8,"in":21.4},{"d":"29/06/2025","sd":27.2,"iv":21.4,"in":21.7},{"d":"06/07/2025","sd":21.0,"iv":21.7,"in":21.2},{"d":"12/07/2025","sd":21.9,"iv":21.2,"in":21.0},{"d":"20/07/2025","sd":23.6,"iv":21.0,"in":20.9},{"d":"26/07/2025","sd":28.5,"iv":20.9,"in":20.9},{"d":"02/08/2025","sd":31.3,"iv":20.9,"in":20.9},{"d":"03/08/2025","sd":24.3,"iv":20.9,"in":20.9},{"d":"07/08/2025","sd":21.1,"iv":20.9,"in":20.5},{"d":"09/08/2025","sd":24.2,"iv":20.5,"in":20.5},{"d":"12/08/2025","sd":27.7,"iv":20.5,"in":20.7},{"d":"16/08/2025","sd":23.6,"iv":20.7,"in":20.6},{"d":"17/08/2025","sd":36.2,"iv":20.6,"in":20.6},{"d":"19/08/2025","sd":31.3,"iv":20.6,"in":20.6},{"d":"20/08/2025","sd":24.0,"iv":20.6,"in":20.6},{"d":"23/08/2025","sd":30.7,"iv":20.6,"in":21.5},{"d":"24/08/2025","sd":28.1,"iv":21.5,"in":22.2},{"d":"30/08/2025","sd":34.3,"iv":22.2,"in":22.2},{"d":"31/08/2025","sd":15.7,"iv":22.2,"in":21.9},{"d":"06/09/2025","sd":26.3,"iv":21.9,"in":21.9},{"d":"07/09/2025","sd":17.5,"iv":21.9,"in":21.1},{"d":"13/09/2025","sd":25.4,"iv":21.1,"in":21.1},{"d":"21/09/2025","sd":28.1,"iv":21.1,"in":21.5},{"d":"27/09/2025","sd":26.3,"iv":21.5,"in":21.8},{"d":"05/10/2025","sd":21.0,"iv":21.8,"in":21.4},{"d":"12/10/2025","sd":29.8,"iv":21.4,"in":21.4},{"d":"25/10/2025","sd":31.6,"iv":21.4,"in":21.4},{"d":"16/11/2025","sd":21.9,"iv":21.4,"in":21.1},{"d":"22/11/2025","sd":30.7,"iv":21.1,"in":21.7},{"d":"23/11/2025","sd":24.5,"iv":21.7,"in":21.7},{"d":"30/11/2025","sd":15.7,"iv":21.7,"in":20.5},{"d":"07/12/2025","sd":25.6,"iv":20.5,"in":20.7},{"d":"14/12/2025","sd":22.1,"iv":20.7,"in":20.3},{"d":"22/02/2026","sd":35.4,"iv":20.3,"in":20.3},{"d":"22/03/2026","sd":14.9,"iv":20.3,"in":19.2},{"d":"06/04/2026","sd":23.0,"iv":19.2,"in":19.0},{"d":"26/04/2026","sd":30.1,"iv":19.0,"in":19.0},{"d":"01/05/2026","sd":26.5,"iv":19.0,"in":19.0},{"d":"09/05/2026","sd":23.0,"iv":19.0,"in":19.9},{"d":"10/05/2026","sd":26.5,"iv":19.9,"in":19.9},{"d":"16/05/2026","sd":32.7,"iv":19.9,"in":20.8},{"d":"17/05/2026","sd":35.4,"iv":20.8,"in":20.8},{"d":"30/05/2026","sd":37.2,"iv":20.8,"in":20.8},{"d":"06/06/2026","sd":27.4,"iv":20.8,"in":20.8},{"d":"07/06/2026","sd":28.3,"iv":20.8,"in":21.3},{"d":"20/06/2026","sd":23.8,"iv":21.3,"in":21.1},{"d":"21/06/2026","sd":21.2,"iv":21.1,"in":20.7},{"d":"27/06/2026","sd":30.1,"iv":20.7,"in":21.0},{"d":"28/06/2026","sd":25.6,"iv":21.0,"in":21.0},{"d":"04/07/2026","sd":31.0,"iv":21.0,"in":21.2},{"d":"05/07/2026","sd":31.9,"iv":21.2,"in":22.2},{"d":"11/07/2026","sd":31.9,"iv":22.2,"in":22.3},{"d":"18/07/2026","sd":27.0,"iv":22.3,"in":22.6},{"d":"01/08/2026","sd":31.9,"iv":22.6,"in":22.6},{"d":"08/08/2026","sd":26.8,"iv":22.6,"in":23.3},{"d":"16/08/2026","sd":30.3,"iv":23.3,"in":23.6},{"d":"20/08/2026","sd":35.8,"iv":23.6,"in":23.6},{"d":"22/08/2026","sd":25.6,"iv":23.6,"in":23.5},{"d":"29/08/2026","sd":28.3,"iv":23.5,"in":23.8},{"d":"12/09/2026","sd":26.5,"iv":23.8,"in":23.8},{"d":"19/09/2026","sd":29.2,"iv":23.8,"in":23.8},{"d":"26/09/2026","sd":29.2,"iv":23.8,"in":23.8},{"d":"04/10/2026","sd":31.0,"iv":23.8,"in":23.8},{"d":"11/10/2026","sd":24.7,"iv":23.8,"in":23.6},{"d":"17/10/2026","sd":31.0,"iv":23.6,"in":23.6},{"d":"31/10/2026","sd":23.8,"iv":23.6,"in":23.6}];
 
 let mode = 'real';  // 'real' | 'sim' | 'proj'
+// ── motore WHS: index previsto ────────────────────────────────────────
+const IDX_NOW = parseFloat(IDX_FIG);
+const _sc   = HIST.map(h => ({ date: h.d, sd: h.sd, hiAtPlay: h.iv }));
+const _seed = HIST.map(h => ({ date: h.d, hi: h.in }));
+// controllo: il motore deve ritrovare l'index FIG attuale, altrimenti non mostra previsioni
+const WHS_OK = HIST.length > 0 && WHS.compute(_sc, { seedHistory: _seed }).out.at(-1).hi === IDX_NOW;
+function todayIt() { const d = new Date(); return [d.getDate(), d.getMonth()+1, d.getFullYear()].map((v,i) => i<2 ? String(v).padStart(2,'0') : v).join('/'); }
+function predict(sd, date) {
+  if (!WHS_OK || sd == null || isNaN(sd)) return null;
+  const o = WHS.compute([..._sc, { date: date || todayIt(), sd, hiAtPlay: IDX_NOW }], { seedHistory: _seed }).out.at(-1);
+  return { hi: o.hi, delta: WHS.r1(o.hi - IDX_NOW), esr: o.esr, cap: o.cap, raw: o.raw };
+}
+function fmtDelta(d) { return d === 0 ? '0.0' : (d > 0 ? '+' : '') + d.toFixed(1); }
+function deltaCls(d) { return d < 0 ? 'var-neg' : d > 0 ? 'var-pos' : 'var-neu'; }
+function why(pr) {
+  const w = [];
+  if (pr.esr) w.push('eccezionale ' + pr.esr.toFixed(1));
+  if (pr.cap) w.push('limite salita (media ' + pr.raw.toFixed(1) + ')');
+  return w.length ? ' · ' + w.join(' · ') : '';
+}
+const VAR_REAL_HTML = document.getElementById('vVar').innerHTML;
+
 let projRow = null;
 
 function top8from(arr) {
@@ -280,6 +397,21 @@ function render() {
   document.getElementById('vAvg').textContent  = st.avg;
   document.getElementById('vBest').textContent = st.bestSD;
   document.getElementById('vStbl').textContent = st.avgStbl;
+
+  // ── riquadro variazione HCP ─────────────────────────────────────────
+  const cVar = document.getElementById('cVar'), vVar = document.getElementById('vVar'), sVar = document.getElementById('sVar');
+  cVar.className = 'card hero' + (hi ? ' '+hi : '');
+  let pr = null;
+  if (mode === 'sim') { const p = ROWS.find(r => r.pending && r.sd_est != null); if (p) pr = predict(p.sd_est, p.date); }
+  else if (mode === 'proj' && projRow) pr = predict(projRow.sd_est, null);
+  if (mode === 'real' || (mode === 'proj' && !projRow)) {
+    vVar.innerHTML = VAR_REAL_HTML; sVar.textContent = 'ultima gara elaborata';
+  } else if (pr) {
+    vVar.innerHTML = '<span class="' + deltaCls(pr.delta) + '" style="font-size:inherit">' + fmtDelta(pr.delta) + '</span>';
+    sVar.textContent = 'index ' + IDX_NOW.toFixed(1) + ' → ' + pr.hi.toFixed(1) + why(pr);
+  } else {
+    vVar.textContent = '—'; sVar.textContent = WHS_OK ? 'dati insufficienti' : 'calcolo non allineato a FIG';
+  }
 
   // ── righe tabella ───────────────────────────────────────────────────
   // rimuovi riga proiezione virtuale precedente
@@ -411,7 +543,8 @@ function calcProj() {
   // Course Handicap WHS: Index × SR/113 + (CR − Par); AGS = Par + CH + (36 − Stableford)
   const ch    = Math.round(idx * sr / 113 + (cr - par));
   const ags   = agsRaw !== '' ? parseFloat(agsRaw) : par + ch + (36 - stbl);
-  const sdEst = parseFloat(((ags - cr) * 113 / sr).toFixed(1));
+  const pcc   = parseFloat(document.getElementById('pPcc').value) || 0;
+  const sdEst = parseFloat(((ags - cr - pcc) * 113 / sr).toFixed(1));
   projRow = { n:'PROJ', gara:'GARA PROIETTATA', stbl, ags, cr, sr, sd_est: sdEst };
 
   const withSD = ROWS.filter(r => !r.pending && r.sd != null);
@@ -428,7 +561,8 @@ function calcProj() {
     'SD stimato: <strong>' + sdEst.toFixed(1) + '</strong>' + (agsRaw === '' ? ' (CH ' + ch + ', AGS ' + ags + ')' : '') + ' &nbsp;|&nbsp; ' +
     (inTop8 ? '✅ <strong>Entra nelle Top 8</strong>' : '❌ Non entra nelle Top 8') +
     ' &nbsp;|&nbsp; Media Top 8: <strong>' + oldAvg + ' → ' + newAvg + '</strong> (' + dir + ')' +
-    (exitG ? ' &nbsp;|&nbsp; Esce: <strong>' + exitG.gara + '</strong> (SD ' + exitG.sd.toFixed(1) + ')' : '');
+    (exitG ? ' &nbsp;|&nbsp; Esce: <strong>' + exitG.gara + '</strong> (SD ' + exitG.sd.toFixed(1) + ')' : '') +
+    (function(){ const pr = predict(sdEst, null); return pr ? ' &nbsp;|&nbsp; Index: <strong>' + IDX_NOW.toFixed(1) + ' → ' + pr.hi.toFixed(1) + ' (' + fmtDelta(pr.delta) + ')</strong>' : ''; })();
 
   render();
 }
