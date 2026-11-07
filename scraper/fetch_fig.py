@@ -462,9 +462,9 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{{border-left:3px sol
   <div class="sp-bar">
     <button class="btn sp-btn" onclick="SP.pick()">📷 Carica score</button>
     <span class="sp-or">oppure inserisci i dati a mano qui sopra</span>
-    <input type="file" id="spFile" accept="image/*" capture="environment" style="display:none" onchange="SP.onFile(event)">
+    <input type="file" id="spFile" accept="image/*" style="display:none" onchange="SP.onFile(event)">
   </div>
-  <div class="sp-keyrow" id="spKeyRow"><input type="password" id="spKey" placeholder="chiave Gemini (AIza…)" autocomplete="off"><button class="btn-calc" onclick="SP.saveKey()">Salva</button></div>
+  <div class="sp-keyrow" id="spKeyRow"><input type="password" id="spKey" placeholder="chiave personale (facoltativa)" autocomplete="off"><button class="btn-calc" onclick="SP.saveKey()">Salva</button></div>
   <div class="sp-msg" id="spMsg"></div>
   <div id="spGrid"></div>
   <div class="proj-result" id="projResult"></div>

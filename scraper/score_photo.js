@@ -7,6 +7,28 @@ const SP = (() => {
   const defKey = () => { try { return atob(DEF).split('').reverse().join(''); } catch (e) { return ''; } };
   const getKey = () => localStorage.getItem(KEY) || defKey();
   const KEY = 'figsync.gemini', MODEL_KEY = 'figsync.geminiModel', LOG = 'figsync.scorelog';
+  // Gruppo: il nome in alto sulla scheda decide a chi va il punteggio.
+  const ROSTER = [
+    { id: 'pignatari', cognome: 'Pignatari', repo: 'pignatari-golf' },
+    { id: 'berilli',   cognome: 'Berilli',   repo: 'berilli-golf' },
+    { id: 'spagnoli',  cognome: 'Spagnoli',  repo: 'spagnoli-golf' },
+  ];
+  const PENDING = 'figsync.pending';
+  const norm = x => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z]+/g, ' ').trim();
+  function lev(a, b) {
+    const d = Array.from({ length: a.length + 1 }, (_, i) => [i]);
+    for (let j = 1; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+    return d[a.length][b.length];
+  }
+  function whoIs(name) {
+    const words = norm(name).split(' ').filter(w => w.length > 2);
+    let best = null, bd = 99;
+    for (const p of ROSTER) for (const w of words) { const dd = lev(w, norm(p.cognome)); if (dd < bd) { bd = dd; best = p; } }
+    return bd <= 2 ? best : null;
+  }
+  const me = () => ROSTER.find(p => norm(p.cognome) === norm(typeof PLAYER_NAME !== 'undefined' ? PLAYER_NAME : '')) || null;
     // Schede dei percorsi note (fonti: GolfPass, TheGrint, Golfify — par e handicap di buca coincidono)
   const COURSES = {
     'MODENA': { nome: 'Modena Golf & Country Club — Bernhard Langer',
@@ -70,7 +92,7 @@ const SP = (() => {
   function prompt() {
     const corsi = Object.values(COURSES).map(c => `${c.nome}: par ${c.par.join(',')}; handicap di buca ${c.si.join(',')}`).join('\n');
     return `Sei un lettore di schede score di golf italiane, compilate a mano.
-Giocatore da leggere: ${PLAYER_NAME} (cognome; se la scheda ha più giocatori usa SOLO la sua riga o colonna).
+Giocatore: è il titolare della scheda, il cui nome è stampato o scritto in alto (intestazione), NON il marcatore. Giocatori del gruppo: ${ROSTER.map(p => p.cognome).join(', ')}. Riporta in "giocatore" il nome come lo leggi in intestazione e usa SOLO la riga o colonna di colpi del titolare.
 Leggi per ognuna delle 18 buche (o 9) i colpi lordi scritti dal marcatore. Una buca senza numero, con "X", "-", "/" o cancellata significa non completata: colpi = null.
 Leggi anche par e handicap di buca stampati sulla scheda. Se il campo è uno di questi, usa questi valori stampati:
 ${corsi}
@@ -143,6 +165,33 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
   }
   function pick() { if (!getKey()) return askKey(); $('spFile').click(); }
 
+  function route(r) {
+    const who = whoIs(r.giocatore), mine = me();
+    if (!who || !mine || who.id === mine.id) {
+      fill(r);
+      if (!who && SP._holes) msg(`ℹ️ Nome in alto non riconosciuto (${r.giocatore ? 'letto: ' + String(r.giocatore).replace(/</g, '&lt;') : 'non letto'}): punteggio attribuito a ${mine ? mine.cognome : PLAYER_NAME}.`);
+      return;
+    }
+    localStorage.setItem(PENDING, JSON.stringify({ to: who.id, r, read, ts: Date.now() }));
+    msg(`📋 La scheda è di <b>${who.cognome}</b>: la porto sulla sua pagina…`);
+    setTimeout(() => {
+      try { if (window.parent !== window && typeof window.parent.show === 'function') { window.parent.show(who.id); msg(''); return; } } catch (e) {}
+      location.href = `https://carlopignatari-boop.github.io/${who.repo}/`;
+    }, 900);
+  }
+  function takePending() {
+    const mine = me(); if (!mine) return;
+    let p; try { p = JSON.parse(localStorage.getItem(PENDING) || 'null'); } catch (e) { p = null; }
+    if (!p || p.to !== mine.id || Date.now() - p.ts > 10 * 60 * 1000) return;
+    localStorage.removeItem(PENDING);
+    if (typeof mode !== 'undefined' && mode !== 'proj' && typeof toggleProj === 'function') toggleProj();
+    read = p.read; fill(p.r);
+    if (SP._holes) msg(`📋 Scheda di <b>${mine.cognome}</b> ricevuta: controlla le buche e conferma.`);
+  }
+  window.addEventListener('storage', e => { if (e.key === PENDING && e.newValue) takePending(); });
+  window.addEventListener('load', () => setTimeout(takePending, 50));
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) takePending(); });
+
   async function onFile(ev) {
     const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
     msg('📷 Leggo la scheda…'); $('spGrid').innerHTML = '';
@@ -150,7 +199,7 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
       const b64 = await toJpeg(f);
       const r = await callModel(b64);
       read = JSON.parse(JSON.stringify(r));
-      fill(r);
+      route(r);
     } catch (e) {
       msg('⚠️ Lettura non riuscita: ' + String(e.message || e).replace(/</g, '&lt;') + (String(e).match(/40[013]/) ? ' — controlla la chiave (<a href="#" onclick="SP.resetKey();return false">cambiala</a>).' : ''));
     }
@@ -167,7 +216,7 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
       si:  course ? course.si[(h.n || i + 1) - 1]  : (h.si || (i + 1)),
       colpi: h.colpi ?? null }));
     if (holes.length !== 18 && holes.length !== 9) { msg('⚠️ Non trovo 18 o 9 buche nella foto: riprova con la scheda intera e ben illuminata.'); return; }
-    if (!holes.some(h => h.colpi != null)) { msg(`⚠️ Non trovo ${PLAYER_NAME} sulla scheda (${r.giocatore ? 'letto: ' + String(r.giocatore).replace(/</g, '&lt;') : 'nessun nome letto'}). Carica la foto dalla pagina del giocatore giusto.`); return; }
+    if (!holes.some(h => h.colpi != null)) { msg(`⚠️ Non trovo ${PLAYER_NAME} sulla scheda (${r.giocatore ? 'letto: ' + String(r.giocatore).replace(/</g, '&lt;') : 'nessun nome letto'}). Controlla che il nome in alto sia leggibile e riprova.`); return; }
     if (holes.length === 9) { msg('ℹ️ Gara da 9 buche: il calcolo FIG usa lo score atteso per le 9 mancanti, qui non ancora replicato. Inserisci lo SD a mano se ti serve.'); }
     if (circName) { $('pCr').value = circ[circName].cr; $('pSr').value = circ[circName].sr; }
     SP._holes = holes; SP._incerte = new Set(r.incerte || []); SP._r = r; SP._circ = circName;
@@ -224,5 +273,5 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
     const tot = log.reduce((s, l) => s + l.buche, 0), err = log.reduce((s, l) => s + l.diff.length, 0);
     return { schede: log.length, buche: tot, errori: err, precisione: tot ? (100 * (tot - err) / tot).toFixed(1) + '%' : '—' };
   }
-  return { pick, onFile, saveKey, resetKey, edit, confirm, computeCard, strokesRecv, fill, stats, COURSES, _holes: null };
+  return { pick, onFile, whoIs, takePending, saveKey, resetKey, edit, confirm, computeCard, strokesRecv, fill, stats, COURSES, _holes: null };
 })();
