@@ -8,6 +8,7 @@ import os
 import sys
 import json
 from datetime import datetime
+from whs_history import fetch_history
 from playwright.sync_api import sync_playwright, TimeoutError as PWTimeout
 
 FIG_URL = "https://areariservata.federgolf.it"
@@ -100,7 +101,7 @@ def parse_rows(page):
         cells = [td.inner_text().strip() for td in row.query_selector_all("td")]
         if len(cells) < 23:
             continue
-        if cells[10].strip() != "S":
+        if cells[10].strip() not in ("S", "V"):
             continue
 
         def to_float(s):
@@ -119,10 +120,11 @@ def parse_rows(page):
         # SD stimato = (AGS - CR) * (113 / SR), arrotondato a 1 decimale
         sd_est = None
         if not sd_raw and ags and cr and sr and sr > 0:
-            sd_est = round((ags - cr) * (113 / sr), 1)
+            sd_est = round((ags - cr - (to_float(cells[17]) or 0)) * (113 / sr), 1) if cells[9].strip() != "9" else None
 
         entry = {
             "data":    cells[0].strip(),
+            "buche":   cells[9].strip(),
             "gara":    cells[3].strip(),
             "circolo": cells[6].strip(),
             "stbl":    to_float(cells[15]),
@@ -178,7 +180,12 @@ def calc_stats(gare):
     }
 
 
-def build_html(gare, stats, updated_at, nome):
+def build_html(gare, stats, updated_at, nome, hist=None):
+    hist = hist or []
+    last_var = next((g.get("var") for g in gare if not g.get("pending")), None)
+    last_var_s = "—" if last_var is None else ("0.0" if last_var == 0 else f"{last_var:+.1f}")
+    last_var_c = "var-neu" if not last_var else ("var-neg" if last_var < 0 else "var-pos")
+    _eng = open(os.path.join(os.path.dirname(os.path.abspath(__file__)), "whs.js"), encoding="utf-8").read()
     # ── dati di base ─────────────────────────────────────────────────────
     cr_def = next((g["cr"] for g in gare if g.get("cr")), 72.2)
     sr_def = next((g["sr"] for g in gare if g.get("sr")), 127)
@@ -235,7 +242,7 @@ def build_html(gare, stats, updated_at, nome):
 
         rows.append(
             f'<tr {tr_cls} '
-            f'data-n="{n}" '
+            f'data-n="{n}" data-date="{g.get("data","")}" '
             f'data-sd="{sd_val if sd_val is not None else ""}" '
             f'data-sd-est="{sd_est_val}" '
             f'data-pending="{str(is_pend).lower()}" '
@@ -276,6 +283,7 @@ def build_html(gare, stats, updated_at, nome):
     js_rows = "Array.from(document.querySelectorAll('#tbody tr')).map(tr => ({"
     js_rows += """
   n:       tr.dataset.n,
+  date:    tr.dataset.date,
   gara:    tr.dataset.gara,
   circolo: tr.dataset.circolo,
   sd:      tr.dataset.sd    !== '' ? parseFloat(tr.dataset.sd)    : null,
@@ -300,7 +308,7 @@ def build_html(gare, stats, updated_at, nome):
 :root{{
   --bg:#0f1117;--card:#1a1d27;--elevated:#23273a;--text:#e2e8f0;--muted:#8892a4;
   --accent:#60a5fa;--ok:#34d399;--warn:#fbbf24;--border:#2d3348;--radius:10px;
-  --sim:#a78bfa;--proj:#fb923c;
+  --sim:#a78bfa;--proj:#fb923c;--gold:#facc15;
 }}
 *{{box-sizing:border-box;margin:0;padding:0}}
 body{{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;
@@ -358,6 +366,13 @@ h1{{font-size:20px;font-weight:700;margin-bottom:4px}}
 .card-value.hi {{color:var(--sim)}}
 .card-value.hi2{{color:var(--proj)}}
 .card-sub{{font-size:11px;color:var(--muted)}}
+.card.hero{{order:-1;grid-column:span 2;border:2px solid var(--gold);
+  background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 16%,var(--card)),var(--card) 70%)}}
+.card.hero .card-label{{color:var(--gold);font-weight:700}}
+.card.hero .card-value{{font-size:40px}}
+.card.hero .card-value .var-neg,.card.hero .card-value .var-pos,.card.hero .card-value .var-neu{{font-size:inherit;font-weight:800}}
+.card.hero .card-sub{{font-size:12px;color:var(--text)}}
+.card.hero.hi{{border-color:var(--sim)}}.card.hero.hi2{{border-color:var(--proj)}}
 /* tabella */
 .table-wrap{{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border)}}
 table{{width:100%;border-collapse:collapse;min-width:700px}}
@@ -399,7 +414,7 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{{border-left:3px sol
 </head>
 <body>
 <h1>🏌️ {nome} — Ultime 20 gare valide</h1>
-<div class="subtitle">Dati reali FIG (Valida = S) · Aggiornato il {updated_at}</div>
+<div class="subtitle">Dati reali FIG (gare valide da 18 e 9 buche) · Aggiornato il {updated_at}</div>
 
 <div class="toolbar">
   <button class="btn btn-back" id="btnBack" onclick="goReal()" style="display:none">← Dati reali</button>
@@ -420,6 +435,8 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{{border-left:3px sol
       <input type="number" id="pSr" value="{sr_def}" inputmode="numeric"></div>
     <div class="proj-field"><label>Par</label>
       <input type="number" id="pPar" value="72" inputmode="numeric"></div>
+    <div class="proj-field"><label>PCC</label>
+      <input type="number" id="pPcc" value="0" min="-1" max="3" inputmode="numeric"></div>
     <button class="btn-calc" onclick="calcProj()">Calcola →</button>
   </div>
   <div class="proj-result" id="projResult"></div>
@@ -452,6 +469,11 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{{border-left:3px sol
     <div class="card-label">Index attuale FIG</div>
     <div class="card-value">{idx_fig}</div>
     <div class="card-sub">ultimo elaborato</div>
+  </div>
+  <div class="card hero" id="cVar">
+    <div class="card-label">Variazione HCP</div>
+    <div class="card-value" id="vVar"><span class="{last_var_c}" style="font-size:inherit">{last_var_s}</span></div>
+    <div class="card-sub" id="sVar">ultima gara elaborata</div>
   </div>
 </div>
 
@@ -487,8 +509,32 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{{border-left:3px sol
     parts.append(f"const SR_DEF = {sr_def};\n")
     parts.append(f"const IDX_FIG = {repr(str(idx_fig))};\n")
     parts.append(f"const AVG_SD_REAL = {avg_sd};\n")
+    parts.append("const WHS = (() => {\n" + _eng + "\nreturn { compute, r1 };\n})();\n")
+    parts.append("const HIST = " + json.dumps(hist, separators=(",", ":")) + ";\n")
     parts.append("""
 let mode = 'real';  // 'real' | 'sim' | 'proj'
+// ── motore WHS: index previsto ────────────────────────────────────────
+const IDX_NOW = parseFloat(IDX_FIG);
+const _sc   = HIST.map(h => ({ date: h.d, sd: h.sd, hiAtPlay: h.iv }));
+const _seed = HIST.map(h => ({ date: h.d, hi: h.in }));
+// controllo: il motore deve ritrovare l'index FIG attuale, altrimenti non mostra previsioni
+const WHS_OK = HIST.length > 0 && WHS.compute(_sc, { seedHistory: _seed }).out.at(-1).hi === IDX_NOW;
+function todayIt() { const d = new Date(); return [d.getDate(), d.getMonth()+1, d.getFullYear()].map((v,i) => i<2 ? String(v).padStart(2,'0') : v).join('/'); }
+function predict(sd, date) {
+  if (!WHS_OK || sd == null || isNaN(sd)) return null;
+  const o = WHS.compute([..._sc, { date: date || todayIt(), sd, hiAtPlay: IDX_NOW }], { seedHistory: _seed }).out.at(-1);
+  return { hi: o.hi, delta: WHS.r1(o.hi - IDX_NOW), esr: o.esr, cap: o.cap, raw: o.raw };
+}
+function fmtDelta(d) { return d === 0 ? '0.0' : (d > 0 ? '+' : '') + d.toFixed(1); }
+function deltaCls(d) { return d < 0 ? 'var-neg' : d > 0 ? 'var-pos' : 'var-neu'; }
+function why(pr) {
+  const w = [];
+  if (pr.esr) w.push('eccezionale ' + pr.esr.toFixed(1));
+  if (pr.cap) w.push('limite salita (media ' + pr.raw.toFixed(1) + ')');
+  return w.length ? ' · ' + w.join(' · ') : '';
+}
+const VAR_REAL_HTML = document.getElementById('vVar').innerHTML;
+
 let projRow = null;
 
 function top8from(arr) {
@@ -545,6 +591,21 @@ function render() {
   document.getElementById('vAvg').textContent  = st.avg;
   document.getElementById('vBest').textContent = st.bestSD;
   document.getElementById('vStbl').textContent = st.avgStbl;
+
+  // ── riquadro variazione HCP ─────────────────────────────────────────
+  const cVar = document.getElementById('cVar'), vVar = document.getElementById('vVar'), sVar = document.getElementById('sVar');
+  cVar.className = 'card hero' + (hi ? ' '+hi : '');
+  let pr = null;
+  if (mode === 'sim') { const p = ROWS.find(r => r.pending && r.sd_est != null); if (p) pr = predict(p.sd_est, p.date); }
+  else if (mode === 'proj' && projRow) pr = predict(projRow.sd_est, null);
+  if (mode === 'real' || (mode === 'proj' && !projRow)) {
+    vVar.innerHTML = VAR_REAL_HTML; sVar.textContent = 'ultima gara elaborata';
+  } else if (pr) {
+    vVar.innerHTML = '<span class="' + deltaCls(pr.delta) + '" style="font-size:inherit">' + fmtDelta(pr.delta) + '</span>';
+    sVar.textContent = 'index ' + IDX_NOW.toFixed(1) + ' → ' + pr.hi.toFixed(1) + why(pr);
+  } else {
+    vVar.textContent = '—'; sVar.textContent = WHS_OK ? 'dati insufficienti' : 'calcolo non allineato a FIG';
+  }
 
   // ── righe tabella ───────────────────────────────────────────────────
   // rimuovi riga proiezione virtuale precedente
@@ -676,7 +737,8 @@ function calcProj() {
   // Course Handicap WHS: Index × SR/113 + (CR − Par); AGS = Par + CH + (36 − Stableford)
   const ch    = Math.round(idx * sr / 113 + (cr - par));
   const ags   = agsRaw !== '' ? parseFloat(agsRaw) : par + ch + (36 - stbl);
-  const sdEst = parseFloat(((ags - cr) * 113 / sr).toFixed(1));
+  const pcc   = parseFloat(document.getElementById('pPcc').value) || 0;
+  const sdEst = parseFloat(((ags - cr - pcc) * 113 / sr).toFixed(1));
   projRow = { n:'PROJ', gara:'GARA PROIETTATA', stbl, ags, cr, sr, sd_est: sdEst };
 
   const withSD = ROWS.filter(r => !r.pending && r.sd != null);
@@ -693,7 +755,8 @@ function calcProj() {
     'SD stimato: <strong>' + sdEst.toFixed(1) + '</strong>' + (agsRaw === '' ? ' (CH ' + ch + ', AGS ' + ags + ')' : '') + ' &nbsp;|&nbsp; ' +
     (inTop8 ? '✅ <strong>Entra nelle Top 8</strong>' : '❌ Non entra nelle Top 8') +
     ' &nbsp;|&nbsp; Media Top 8: <strong>' + oldAvg + ' → ' + newAvg + '</strong> (' + dir + ')' +
-    (exitG ? ' &nbsp;|&nbsp; Esce: <strong>' + exitG.gara + '</strong> (SD ' + exitG.sd.toFixed(1) + ')' : '');
+    (exitG ? ' &nbsp;|&nbsp; Esce: <strong>' + exitG.gara + '</strong> (SD ' + exitG.sd.toFixed(1) + ')' : '') +
+    (function(){ const pr = predict(sdEst, null); return pr ? ' &nbsp;|&nbsp; Index: <strong>' + IDX_NOW.toFixed(1) + ' → ' + pr.hi.toFixed(1) + ' (' + fmtDelta(pr.delta) + ')</strong>' : ''; })();
 
   render();
 }
@@ -717,16 +780,17 @@ def main():
             login(page)
             gare = parse_rows(page)
             stats = calc_stats(gare)
+            hist = fetch_history(page)
             print(f"Stats: {stats}")
             updated_at = datetime.now().strftime("%d/%m/%Y %H:%M")
-            html = build_html(gare, stats, updated_at, "Pignatari")
+            html = build_html(gare, stats, updated_at, "Pignatari", hist)
             out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "index.html")
             with open(out, "w", encoding="utf-8") as f:
                 f.write(html)
             print(f"index.html scritto ({len(html)} bytes)")
             debug_out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "last_run.json")
             with open(debug_out, "w") as f:
-                json.dump({"gare": gare, "stats": stats, "updated_at": updated_at}, f, indent=2)
+                json.dump({"gare": gare, "stats": stats, "updated_at": updated_at, "hist": hist}, f, indent=2)
         finally:
             browser.close()
 
