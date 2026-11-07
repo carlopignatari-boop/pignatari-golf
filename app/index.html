@@ -19,6 +19,7 @@
 <div class="shell">
   <section class="view snip" id="v-berilli" data-view="berilli"></section>
   <section class="view snip" id="v-pignatari" data-view="pignatari"></section>
+  <section class="view snip" id="v-spagnoli" data-view="spagnoli"></section>
   <section class="view" id="v-sync" data-view="sync">
     <main class="wrap">
       <header class="top">
@@ -41,6 +42,7 @@
   <nav class="tabs" aria-label="Sezioni">
     <button data-tab="berilli">Berilli</button>
     <button data-tab="pignatari">Pignatari</button>
+    <button data-tab="spagnoli">A. Spagnoli</button>
     <button data-tab="sync">Aggiorna</button>
   </nav>
 </div>
@@ -48,7 +50,7 @@
 <dialog id="settings">
   <form method="dialog" class="sheet">
     <h2>Token GitHub</h2>
-    <p class="muted">Crea un token <b>fine-grained</b> limitato ai repo <code>pignatari-golf</code> e <code>berilli-golf</code>, con permesso <b>Actions: Read and write</b>. Resta salvato solo su questo dispositivo.</p>
+    <p class="muted">Crea un token <b>fine-grained</b> limitato ai repo <code>pignatari-golf</code>, <code>berilli-golf</code> e <code>spagnoli-golf</code>, con permesso <b>Actions: Read and write</b>. Resta salvato solo su questo dispositivo.</p>
     <a class="link-out" target="_blank" rel="noopener" href="https://github.com/settings/personal-access-tokens/new?name=FIG%20Sync&description=Avvio%20workflow%20Aggiorna%20dati%20FIG&target_name=carlopignatari-boop&expires_in=366&actions=write">Crea il token su GitHub ↗</a>
     <div class="lab"><label for="tokenInput">Token</label><button type="button" class="link" id="showToken">Mostra</button></div>
     <input id="tokenInput" type="password" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="github_pat_…">
