@@ -66,6 +66,25 @@ h1{font-size:20px;font-weight:700;margin-bottom:4px}
 .card-value.hi {color:var(--sim)}
 .card-value.hi2{color:var(--proj)}
 .card-sub{font-size:11px;color:var(--muted)}
+.sp-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:6px 0 4px}
+.sp-btn{border-color:var(--proj);color:var(--proj)}
+.sp-or{font-size:11px;color:var(--muted)}
+.sp-keyrow{display:none;gap:8px;margin:8px 0}
+.sp-keyrow input{flex:1;min-width:0;background:var(--elevated);border:1px solid var(--border);color:var(--text);padding:6px 10px;border-radius:6px}
+.sp-msg{display:none;font-size:12px;color:var(--text);margin:8px 0;line-height:1.6}
+.sp-msg a{color:var(--accent)}
+.sp-head{font-size:12px;color:var(--muted);margin:10px 0 6px}
+.sp-holes{display:grid;grid-template-columns:repeat(auto-fill,minmax(52px,1fr));gap:6px}
+.sp-h{background:var(--elevated);border:1px solid var(--border);border-radius:6px;padding:4px;text-align:center}
+.sp-h.sp-unc{border-color:var(--warn);background:color-mix(in srgb,var(--warn) 14%,var(--elevated))}
+.sp-n{font-size:13px;font-weight:800}
+.sp-par{font-size:9px;color:var(--muted);line-height:1.2;min-height:22px}
+.sp-h input{width:100%;background:var(--bg);border:1px solid var(--border);color:var(--text);border-radius:4px;text-align:center;font-size:16px;font-weight:700;padding:3px 0}
+.sp-pts{font-size:10px;color:var(--ok);margin-top:2px}
+.sp-tot{font-size:13px;margin-top:8px}
+.sp-unc-t{color:var(--warn)}
+.sp-warn{font-size:12px;color:var(--warn);margin-top:6px}
+.sp-act{margin-top:8px}
 .card.hero{order:-1;grid-column:span 2;border:2px solid var(--gold);
   background:linear-gradient(135deg,color-mix(in srgb,var(--gold) 16%,var(--card)),var(--card) 70%)}
 .card.hero .card-label{color:var(--gold);font-weight:700}
@@ -114,7 +133,7 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{border-left:3px soli
 </head>
 <body>
 <h1>🏌️ Pignatari — Ultime 20 gare valide</h1>
-<div class="subtitle">Dati reali FIG (gare valide da 18 e 9 buche) · Aggiornato il 07/11/2026 23:10</div>
+<div class="subtitle">Dati reali FIG (gare valide da 18 e 9 buche) · Aggiornato il 07/11/2026 23:18</div>
 
 <div class="toolbar">
   <button class="btn btn-back" id="btnBack" onclick="goReal()" style="display:none">← Dati reali</button>
@@ -139,6 +158,14 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{border-left:3px soli
       <input type="number" id="pPcc" value="0" min="-1" max="3" inputmode="numeric"></div>
     <button class="btn-calc" onclick="calcProj()">Calcola →</button>
   </div>
+  <div class="sp-bar">
+    <button class="btn sp-btn" onclick="SP.pick()">📷 Carica score</button>
+    <span class="sp-or">oppure inserisci i dati a mano qui sopra</span>
+    <input type="file" id="spFile" accept="image/*" capture="environment" style="display:none" onchange="SP.onFile(event)">
+  </div>
+  <div class="sp-keyrow" id="spKeyRow"><input type="password" id="spKey" placeholder="chiave Gemini (AIza…)" autocomplete="off"><button class="btn-calc" onclick="SP.saveKey()">Salva</button></div>
+  <div class="sp-msg" id="spMsg"></div>
+  <div id="spGrid"></div>
   <div class="proj-result" id="projResult"></div>
 </div>
 
@@ -316,6 +343,7 @@ if (typeof module !== 'undefined') module.exports = { compute, table, r1 };
 
 return { compute, r1 };
 })();
+const PLAYER_NAME = "Pignatari";
 const HIST = [{"d":"14/04/2021","sd":21.7,"iv":17.3,"in":17.3},{"d":"18/07/2021","sd":22.8,"iv":17.3,"in":17.3},{"d":"22/07/2021","sd":22.8,"iv":17.3,"in":17.3},{"d":"24/07/2021","sd":19.2,"iv":17.3,"in":17.3},{"d":"25/07/2021","sd":24.5,"iv":17.3,"in":17.8},{"d":"31/07/2021","sd":29.0,"iv":17.8,"in":18.4},{"d":"01/08/2021","sd":21.0,"iv":18.4,"in":18.4},{"d":"06/08/2021","sd":23.7,"iv":18.4,"in":18.7},{"d":"07/08/2021","sd":20.1,"iv":18.7,"in":18.9},{"d":"25/09/2021","sd":18.4,"iv":18.9,"in":18.9},{"d":"31/10/2021","sd":22.8,"iv":19.0,"in":19.4},{"d":"19/12/2021","sd":22.8,"iv":19.4,"in":19.6},{"d":"19/02/2022","sd":27.2,"iv":19.6,"in":20.2},{"d":"27/02/2022","sd":28.1,"iv":20.2,"in":20.6},{"d":"28/05/2022","sd":24.5,"iv":20.6,"in":20.6},{"d":"04/06/2022","sd":28.1,"iv":20.6,"in":20.6},{"d":"09/06/2022","sd":22.8,"iv":20.6,"in":20.6},{"d":"12/06/2022","sd":22.8,"iv":20.6,"in":20.7},{"d":"21/09/2022","sd":24.5,"iv":20.7,"in":20.7},{"d":"24/09/2022","sd":21.9,"iv":20.7,"in":21.0},{"d":"25/09/2022","sd":24.5,"iv":21.0,"in":21.1},{"d":"09/10/2022","sd":21.0,"iv":21.1,"in":20.9},{"d":"12/10/2022","sd":15.7,"iv":20.9,"in":20.0},{"d":"15/10/2022","sd":22.8,"iv":20.0,"in":20.5},{"d":"16/10/2022","sd":27.2,"iv":20.5,"in":20.5},{"d":"20/10/2022","sd":21.9,"iv":20.5,"in":20.4},{"d":"22/10/2022","sd":21.9,"iv":20.4,"in":20.5},{"d":"27/10/2022","sd":31.6,"iv":20.5,"in":20.5},{"d":"30/10/2022","sd":29.0,"iv":20.5,"in":20.8},{"d":"01/11/2022","sd":16.6,"iv":20.8,"in":20.6},{"d":"03/11/2022","sd":23.7,"iv":20.6,"in":20.6},{"d":"05/11/2022","sd":21.9,"iv":20.6,"in":20.5},{"d":"06/11/2022","sd":26.3,"iv":20.5,"in":20.5},{"d":"25/04/2023","sd":34.3,"iv":20.5,"in":20.5},{"d":"29/04/2023","sd":22.8,"iv":20.5,"in":20.5},{"d":"30/04/2023","sd":31.6,"iv":20.5,"in":20.5},{"d":"01/05/2023","sd":26.3,"iv":20.5,"in":20.5},{"d":"06/05/2023","sd":21.0,"iv":20.5,"in":20.2},{"d":"06/06/2023","sd":22.8,"iv":20.2,"in":20.2},{"d":"29/07/2023","sd":29.0,"iv":20.2,"in":20.4},{"d":"30/07/2023","sd":19.2,"iv":20.4,"in":19.9},{"d":"03/08/2023","sd":18.4,"iv":19.9,"in":19.6},{"d":"05/08/2023","sd":28.1,"iv":19.6,"in":20.5},{"d":"06/08/2023","sd":27.2,"iv":20.5,"in":20.5},{"d":"12/08/2023","sd":18.4,"iv":20.5,"in":19.9},{"d":"17/08/2023","sd":21.0,"iv":19.9,"in":19.8},{"d":"19/08/2023","sd":19.2,"iv":19.8,"in":19.5},{"d":"24/08/2023","sd":26.3,"iv":19.5,"in":19.5},{"d":"26/08/2023","sd":19.2,"iv":19.5,"in":19.1},{"d":"31/08/2023","sd":20.1,"iv":19.1,"in":19.6},{"d":"02/09/2023","sd":23.7,"iv":19.6,"in":19.6},{"d":"07/09/2023","sd":18.4,"iv":19.6,"in":19.2},{"d":"09/09/2023","sd":26.3,"iv":19.2,"in":19.2},{"d":"10/09/2023","sd":20.1,"iv":19.2,"in":19.1},{"d":"28/09/2023","sd":30.7,"iv":19.1,"in":19.1},{"d":"30/09/2023","sd":22.8,"iv":19.1,"in":19.1},{"d":"01/10/2023","sd":29.0,"iv":19.1,"in":19.1},{"d":"08/10/2023","sd":28.1,"iv":19.1,"in":19.1},{"d":"11/10/2023","sd":20.1,"iv":19.1,"in":19.1},{"d":"15/10/2023","sd":22.8,"iv":19.1,"in":19.1},{"d":"21/10/2023","sd":20.1,"iv":19.1,"in":19.2},{"d":"22/10/2023","sd":23.7,"iv":19.2,"in":19.5},{"d":"28/10/2023","sd":28.1,"iv":19.5,"in":19.5},{"d":"29/10/2023","sd":23.7,"iv":19.5,"in":19.5},{"d":"16/11/2023","sd":19.2,"iv":19.5,"in":19.6},{"d":"18/11/2023","sd":22.8,"iv":19.6,"in":19.6},{"d":"03/12/2023","sd":24.5,"iv":19.6,"in":20.0},{"d":"08/12/2023","sd":27.2,"iv":20.0,"in":20.0},{"d":"10/12/2023","sd":22.8,"iv":20.0,"in":20.5},{"d":"16/12/2023","sd":27.2,"iv":20.5,"in":20.8},{"d":"17/12/2023","sd":21.9,"iv":20.8,"in":20.7},{"d":"21/12/2023","sd":18.4,"iv":20.7,"in":20.7},{"d":"30/12/2023","sd":23.7,"iv":20.7,"in":20.7},{"d":"04/01/2024","sd":25.4,"iv":20.7,"in":21.0},{"d":"11/01/2024","sd":26.3,"iv":21.0,"in":21.0},{"d":"27/01/2024","sd":16.6,"iv":21.0,"in":20.2},{"d":"04/02/2024","sd":21.0,"iv":20.2,"in":20.0},{"d":"11/02/2024","sd":30.7,"iv":20.0,"in":20.0},{"d":"17/02/2024","sd":18.4,"iv":20.0,"in":19.8},{"d":"22/02/2024","sd":35.1,"iv":19.8,"in":19.8},{"d":"25/02/2024","sd":23.7,"iv":19.8,"in":20.1},{"d":"02/03/2024","sd":21.0,"iv":20.1,"in":20.1},{"d":"09/03/2024","sd":19.2,"iv":19.9,"in":19.5},{"d":"17/03/2024","sd":34.3,"iv":19.5,"in":19.5},{"d":"30/03/2024","sd":16.6,"iv":19.5,"in":19.1},{"d":"01/04/2024","sd":27.2,"iv":19.1,"in":19.1},{"d":"06/04/2024","sd":26.3,"iv":19.1,"in":19.1},{"d":"13/04/2024","sd":37.4,"iv":19.1,"in":19.1},{"d":"14/04/2024","sd":24.5,"iv":19.1,"in":19.1},{"d":"21/04/2024","sd":21.0,"iv":19.1,"in":19.0},{"d":"27/04/2024","sd":28.1,"iv":19.0,"in":19.0},{"d":"04/05/2024","sd":21.0,"iv":19.0,"in":19.4},{"d":"12/05/2024","sd":25.4,"iv":19.4,"in":19.4},{"d":"18/05/2024","sd":22.8,"iv":19.4,"in":19.4},{"d":"19/05/2024","sd":27.2,"iv":19.4,"in":19.4},{"d":"23/05/2024","sd":23.7,"iv":19.4,"in":20.1},{"d":"16/06/2024","sd":17.5,"iv":20.1,"in":19.7},{"d":"04/07/2024","sd":28.1,"iv":19.7,"in":19.7},{"d":"06/07/2024","sd":24.5,"iv":19.7,"in":20.4},{"d":"07/07/2024","sd":24.5,"iv":20.4,"in":20.4},{"d":"14/07/2024","sd":19.2,"iv":20.4,"in":19.8},{"d":"20/07/2024","sd":15.7,"iv":19.8,"in":19.1},{"d":"27/07/2024","sd":22.8,"iv":19.1,"in":19.6},{"d":"01/08/2024","sd":28.1,"iv":19.6,"in":19.6},{"d":"03/08/2024","sd":26.3,"iv":19.6,"in":20.5},{"d":"08/08/2024","sd":22.8,"iv":20.5,"in":20.4},{"d":"10/08/2024","sd":29.0,"iv":20.4,"in":20.4},{"d":"17/08/2024","sd":17.5,"iv":20.4,"in":19.7},{"d":"18/08/2024","sd":20.1,"iv":19.7,"in":19.4},{"d":"22/08/2024","sd":28.1,"iv":19.4,"in":19.6},{"d":"24/08/2024","sd":23.7,"iv":19.6,"in":19.6},{"d":"25/08/2024","sd":23.7,"iv":19.6,"in":19.8},{"d":"29/08/2024","sd":30.7,"iv":19.8,"in":19.8},{"d":"31/08/2024","sd":25.4,"iv":19.8,"in":19.9},{"d":"07/09/2024","sd":19.2,"iv":19.9,"in":19.4},{"d":"14/09/2024","sd":28.1,"iv":19.4,"in":19.4},{"d":"28/09/2024","sd":28.1,"iv":19.4,"in":20.1},{"d":"05/10/2024","sd":23.7,"iv":20.1,"in":20.1},{"d":"12/10/2024","sd":25.4,"iv":20.1,"in":20.1},{"d":"26/10/2024","sd":30.7,"iv":20.1,"in":20.1},{"d":"27/10/2024","sd":30.7,"iv":20.1,"in":20.7},{"d":"09/11/2024","sd":25.4,"iv":20.7,"in":21.7},{"d":"10/11/2024","sd":28.1,"iv":21.7,"in":22.0},{"d":"24/11/2024","sd":21.9,"iv":22.0,"in":21.6},{"d":"30/11/2024","sd":28.1,"iv":21.6,"in":21.6},{"d":"07/12/2024","sd":22.8,"iv":21.6,"in":21.6},{"d":"14/12/2024","sd":22.8,"iv":21.6,"in":21.5},{"d":"28/12/2024","sd":24.5,"iv":21.5,"in":22.1},{"d":"05/01/2025","sd":19.2,"iv":22.1,"in":22.1},{"d":"06/01/2025","sd":17.5,"iv":22.1,"in":21.4},{"d":"11/01/2025","sd":20.1,"iv":21.4,"in":20.9},{"d":"16/02/2025","sd":21.9,"iv":20.9,"in":20.7},{"d":"23/02/2025","sd":30.7,"iv":20.7,"in":20.7},{"d":"02/03/2025","sd":23.7,"iv":20.7,"in":20.7},{"d":"09/03/2025","sd":27.2,"iv":20.7,"in":21.2},{"d":"16/03/2025","sd":28.1,"iv":21.2,"in":21.2},{"d":"23/03/2025","sd":34.3,"iv":21.2,"in":21.2},{"d":"30/03/2025","sd":24.5,"iv":21.2,"in":21.2},{"d":"06/04/2025","sd":29.0,"iv":21.2,"in":21.2},{"d":"12/04/2025","sd":25.4,"iv":21.2,"in":21.2},{"d":"21/04/2025","sd":22.8,"iv":21.2,"in":21.1},{"d":"26/04/2025","sd":29.0,"iv":21.1,"in":21.1},{"d":"03/05/2025","sd":24.5,"iv":21.1,"in":21.1},{"d":"11/05/2025","sd":26.3,"iv":21.1,"in":21.4},{"d":"18/05/2025","sd":29.0,"iv":21.4,"in":21.4},{"d":"25/05/2025","sd":16.6,"iv":21.4,"in":20.6},{"d":"31/05/2025","sd":18.4,"iv":20.6,"in":20.0},{"d":"01/06/2025","sd":28.1,"iv":20.0,"in":20.0},{"d":"02/06/2025","sd":18.4,"iv":20.0,"in":19.9},{"d":"22/06/2025","sd":24.5,"iv":19.9,"in":20.8},{"d":"28/06/2025","sd":24.5,"iv":20.8,"in":21.4},{"d":"29/06/2025","sd":27.2,"iv":21.4,"in":21.7},{"d":"06/07/2025","sd":21.0,"iv":21.7,"in":21.2},{"d":"12/07/2025","sd":21.9,"iv":21.2,"in":21.0},{"d":"20/07/2025","sd":23.6,"iv":21.0,"in":20.9},{"d":"26/07/2025","sd":28.5,"iv":20.9,"in":20.9},{"d":"02/08/2025","sd":31.3,"iv":20.9,"in":20.9},{"d":"03/08/2025","sd":24.3,"iv":20.9,"in":20.9},{"d":"07/08/2025","sd":21.1,"iv":20.9,"in":20.5},{"d":"09/08/2025","sd":24.2,"iv":20.5,"in":20.5},{"d":"12/08/2025","sd":27.7,"iv":20.5,"in":20.7},{"d":"16/08/2025","sd":23.6,"iv":20.7,"in":20.6},{"d":"17/08/2025","sd":36.2,"iv":20.6,"in":20.6},{"d":"19/08/2025","sd":31.3,"iv":20.6,"in":20.6},{"d":"20/08/2025","sd":24.0,"iv":20.6,"in":20.6},{"d":"23/08/2025","sd":30.7,"iv":20.6,"in":21.5},{"d":"24/08/2025","sd":28.1,"iv":21.5,"in":22.2},{"d":"30/08/2025","sd":34.3,"iv":22.2,"in":22.2},{"d":"31/08/2025","sd":15.7,"iv":22.2,"in":21.9},{"d":"06/09/2025","sd":26.3,"iv":21.9,"in":21.9},{"d":"07/09/2025","sd":17.5,"iv":21.9,"in":21.1},{"d":"13/09/2025","sd":25.4,"iv":21.1,"in":21.1},{"d":"21/09/2025","sd":28.1,"iv":21.1,"in":21.5},{"d":"27/09/2025","sd":26.3,"iv":21.5,"in":21.8},{"d":"05/10/2025","sd":21.0,"iv":21.8,"in":21.4},{"d":"12/10/2025","sd":29.8,"iv":21.4,"in":21.4},{"d":"25/10/2025","sd":31.6,"iv":21.4,"in":21.4},{"d":"16/11/2025","sd":21.9,"iv":21.4,"in":21.1},{"d":"22/11/2025","sd":30.7,"iv":21.1,"in":21.7},{"d":"23/11/2025","sd":24.5,"iv":21.7,"in":21.7},{"d":"30/11/2025","sd":15.7,"iv":21.7,"in":20.5},{"d":"07/12/2025","sd":25.6,"iv":20.5,"in":20.7},{"d":"14/12/2025","sd":22.1,"iv":20.7,"in":20.3},{"d":"22/02/2026","sd":35.4,"iv":20.3,"in":20.3},{"d":"22/03/2026","sd":14.9,"iv":20.3,"in":19.2},{"d":"06/04/2026","sd":23.0,"iv":19.2,"in":19.0},{"d":"26/04/2026","sd":30.1,"iv":19.0,"in":19.0},{"d":"01/05/2026","sd":26.5,"iv":19.0,"in":19.0},{"d":"09/05/2026","sd":23.0,"iv":19.0,"in":19.9},{"d":"10/05/2026","sd":26.5,"iv":19.9,"in":19.9},{"d":"16/05/2026","sd":32.7,"iv":19.9,"in":20.8},{"d":"17/05/2026","sd":35.4,"iv":20.8,"in":20.8},{"d":"30/05/2026","sd":37.2,"iv":20.8,"in":20.8},{"d":"06/06/2026","sd":27.4,"iv":20.8,"in":20.8},{"d":"07/06/2026","sd":28.3,"iv":20.8,"in":21.3},{"d":"20/06/2026","sd":23.8,"iv":21.3,"in":21.1},{"d":"21/06/2026","sd":21.2,"iv":21.1,"in":20.7},{"d":"27/06/2026","sd":30.1,"iv":20.7,"in":21.0},{"d":"28/06/2026","sd":25.6,"iv":21.0,"in":21.0},{"d":"04/07/2026","sd":31.0,"iv":21.0,"in":21.2},{"d":"05/07/2026","sd":31.9,"iv":21.2,"in":22.2},{"d":"11/07/2026","sd":31.9,"iv":22.2,"in":22.3},{"d":"18/07/2026","sd":27.0,"iv":22.3,"in":22.6},{"d":"01/08/2026","sd":31.9,"iv":22.6,"in":22.6},{"d":"08/08/2026","sd":26.8,"iv":22.6,"in":23.3},{"d":"16/08/2026","sd":30.3,"iv":23.3,"in":23.6},{"d":"20/08/2026","sd":35.8,"iv":23.6,"in":23.6},{"d":"22/08/2026","sd":25.6,"iv":23.6,"in":23.5},{"d":"29/08/2026","sd":28.3,"iv":23.5,"in":23.8},{"d":"12/09/2026","sd":26.5,"iv":23.8,"in":23.8},{"d":"19/09/2026","sd":29.2,"iv":23.8,"in":23.8},{"d":"26/09/2026","sd":29.2,"iv":23.8,"in":23.8},{"d":"04/10/2026","sd":31.0,"iv":23.8,"in":23.8},{"d":"11/10/2026","sd":24.7,"iv":23.8,"in":23.6},{"d":"17/10/2026","sd":31.0,"iv":23.6,"in":23.6},{"d":"31/10/2026","sd":23.8,"iv":23.6,"in":23.6}];
 
 let mode = 'real';  // 'real' | 'sim' | 'proj'
@@ -554,7 +582,7 @@ function calcProj() {
   const newAvg = (newArr.slice(0,8).reduce((s,v)=>s+v,0)/8).toFixed(1);
   const inTop8 = newArr.slice(0,8).includes(sdEst);
   const exitG  = withSD[19];
-  const dir    = parseFloat(newAvg) < parseFloat(oldAvg) ? '📉 migliora' : '📈 peggiora';
+  const dir    = parseFloat(newAvg) < parseFloat(oldAvg) ? '📉 migliora' : parseFloat(newAvg) > parseFloat(oldAvg) ? '📈 peggiora' : '= invariata';
 
   document.getElementById('projResult').className = 'proj-result show';
   document.getElementById('projResult').innerHTML =
@@ -568,6 +596,204 @@ function calcProj() {
 }
 
 render();
+</script>
+<script>
+// score_photo.js — "Carica score": lettura della scheda con Gemini + calcolo WHS buca per buca.
+// Contesto dato al modello (RAG leggero): campo noto (par e handicap di buca), nome del giocatore,
+// errori di lettura già corretti su questo telefono. I conti li fa l'app, non il modello.
+const SP = (() => {
+  const KEY = 'figsync.gemini', MODEL_KEY = 'figsync.geminiModel', LOG = 'figsync.scorelog';
+  const MODELS = ['gemini-3.6-flash', 'gemini-3.5-flash-lite'];
+  // Schede dei percorsi note (fonti: GolfPass, TheGrint, Golfify — par e handicap di buca coincidono)
+  const COURSES = {
+    'MODENA': { nome: 'Modena Golf & Country Club — Bernhard Langer',
+      par: [4,4,3,5,4,3,5,4,4, 5,3,4,5,4,3,4,3,5],
+      si:  [4,2,8,10,12,14,18,16,6, 13,17,7,3,11,5,1,15,9] },
+  };
+  const $ = id => document.getElementById(id);
+  let read = null;   // risposta del modello (per il registro delle correzioni)
+
+  function courseFor(name) {
+    const u = (name || '').toUpperCase();
+    return Object.keys(COURSES).find(k => u.includes(k)) || null;
+  }
+  // percorsi già giocati, con CR/SR presi dalla storia FIG
+  function knownCircoli() {
+    const m = {};
+    ROWS.forEach(r => { if (r.circolo && !m[r.circolo] && r.cr && r.sr) m[r.circolo] = { cr: r.cr, sr: r.sr }; });
+    return m;
+  }
+
+  // ── calcolo WHS buca per buca ──────────────────────────────────────
+  // ch = course handicap; colpi null = buca non completata (vale doppio bogey netto, 0 punti)
+  function strokesRecv(ch, si) {
+    if (ch <= 0) return 0;
+    const base = Math.floor(ch / 18), rest = ch % 18;
+    return base + (si <= rest ? 1 : 0);
+  }
+  function computeCard(holes, ch) {
+    let stbl = 0, ags = 0, par = 0;
+    const det = holes.map(h => {
+      const recv = strokesRecv(ch, h.si);
+      const cap = h.par + 2 + recv;                        // doppio bogey netto
+      const pts = h.colpi ? Math.max(0, h.par + recv + 2 - h.colpi) : 0;
+      const adj = h.colpi ? Math.min(h.colpi, cap) : cap;
+      stbl += pts; ags += adj; par += h.par;
+      return { ...h, recv, cap, pts, adj };
+    });
+    return { det, stbl, ags, par };
+  }
+
+  // ── immagine → base64 ridimensionata ───────────────────────────────
+  function toJpeg(file, max = 1600) {
+    return new Promise((res, rej) => {
+      const img = new Image();
+      img.onload = () => {
+        const k = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas'); c.width = Math.round(img.width * k); c.height = Math.round(img.height * k);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        res(c.toDataURL('image/jpeg', 0.85).split(',')[1]);
+      };
+      img.onerror = rej; img.src = URL.createObjectURL(file);
+    });
+  }
+
+  function hints() {
+    const log = JSON.parse(localStorage.getItem(LOG) || '[]').slice(-10);
+    const errs = log.flatMap(l => l.diff.map(d => `buca ${d.n}: letto ${d.letto ?? 'vuoto'}, era ${d.vero ?? 'non completata'}`));
+    return errs.length ? 'Errori di lettura già corretti su schede precedenti (fai attenzione a cifre simili): ' + errs.slice(-15).join('; ') + '.' : '';
+  }
+
+  function prompt() {
+    const corsi = Object.values(COURSES).map(c => `${c.nome}: par ${c.par.join(',')}; handicap di buca ${c.si.join(',')}`).join('\n');
+    return `Sei un lettore di schede score di golf italiane, compilate a mano.
+Giocatore da leggere: ${PLAYER_NAME} (cognome; se la scheda ha più giocatori usa SOLO la sua riga o colonna).
+Leggi per ognuna delle 18 buche (o 9) i colpi lordi scritti dal marcatore. Una buca senza numero, con "X", "-", "/" o cancellata significa non completata: colpi = null.
+Leggi anche par e handicap di buca stampati sulla scheda. Se il campo è uno di questi, usa questi valori stampati:
+${corsi}
+Riporta anche, se scritti, il totale colpi e il totale punti Stableford del giocatore, il nome del circolo e la data.
+Per ogni buca in cui la cifra è dubbia mettila in "incerte".
+${hints()}
+Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|null,"buche":[{"n":int,"par":int|null,"si":int|null,"colpi":int|null}],"totale_colpi_scritto":int|null,"stbl_scritto":int|null,"incerte":[int],"note":str}`;
+  }
+
+  async function callGemini(b64) {
+    const key = localStorage.getItem(KEY);
+    const models = [localStorage.getItem(MODEL_KEY), ...MODELS].filter(Boolean);
+    let lastErr = '';
+    for (const m of [...new Set(models)]) {
+      const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${m}:generateContent`, {
+        method: 'POST', headers: { 'Content-Type': 'application/json', 'x-goog-api-key': key },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt() }, { inline_data: { mime_type: 'image/jpeg', data: b64 } }] }],
+          generationConfig: { temperature: 0, responseMimeType: 'application/json' } }) });
+      if (r.ok) {
+        localStorage.setItem(MODEL_KEY, m);
+        const j = await r.json();
+        const txt = j.candidates?.[0]?.content?.parts?.map(p => p.text || '').join('') || '{}';
+        return JSON.parse(txt.replace(/^```json|```$/g, '').trim());
+      }
+      lastErr = r.status + ' ' + (await r.text()).slice(0, 160);
+      if (r.status === 400 || r.status === 401 || r.status === 403) break;  // chiave non valida: inutile provare altri modelli
+    }
+    throw new Error(lastErr);
+  }
+
+  // ── interfaccia ────────────────────────────────────────────────────
+  function msg(html) { const el = $('spMsg'); el.innerHTML = html; el.style.display = html ? 'block' : 'none'; }
+  function askKey() {
+    $('spKeyRow').style.display = 'flex';
+    msg('Per leggere la foto serve una chiave Gemini (gratuita): <a href="https://aistudio.google.com/apikey" target="_blank" rel="noopener">creala qui ↗</a>, poi incollala sotto. Resta salvata solo su questo telefono.');
+  }
+  function saveKey() {
+    const v = $('spKey').value.trim(); if (!v) return;
+    localStorage.setItem(KEY, v); $('spKeyRow').style.display = 'none'; msg('Chiave salvata. Ora premi “📷 Carica score”.');
+  }
+  function pick() { if (!localStorage.getItem(KEY)) return askKey(); $('spFile').click(); }
+
+  async function onFile(ev) {
+    const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
+    msg('📷 Leggo la scheda…'); $('spGrid').innerHTML = '';
+    try {
+      const b64 = await toJpeg(f);
+      const r = await callGemini(b64);
+      read = JSON.parse(JSON.stringify(r));
+      fill(r);
+    } catch (e) {
+      msg('⚠️ Lettura non riuscita: ' + String(e.message || e).replace(/</g, '&lt;') + (String(e).match(/40[013]/) ? ' — controlla la chiave (<a href="#" onclick="SP.resetKey();return false">cambiala</a>).' : ''));
+    }
+  }
+
+  function fill(r) {
+    const circ = knownCircoli();
+    const circName = Object.keys(circ).find(k => (r.circolo || '').toUpperCase().includes(k)) || null;
+    const ck = courseFor(r.circolo) || (circName && courseFor(circName));
+    const course = ck ? COURSES[ck] : null;
+    const holes = (r.buche || []).sort((a, b) => a.n - b.n).map((h, i) => ({
+      n: h.n || i + 1,
+      par: course ? course.par[(h.n || i + 1) - 1] : (h.par || 4),
+      si:  course ? course.si[(h.n || i + 1) - 1]  : (h.si || (i + 1)),
+      colpi: h.colpi ?? null }));
+    if (holes.length !== 18 && holes.length !== 9) { msg('⚠️ Non trovo 18 o 9 buche nella foto: riprova con la scheda intera e ben illuminata.'); return; }
+    if (holes.length === 9) { msg('ℹ️ Gara da 9 buche: il calcolo FIG usa lo score atteso per le 9 mancanti, qui non ancora replicato. Inserisci lo SD a mano se ti serve.'); }
+    if (circName) { $('pCr').value = circ[circName].cr; $('pSr').value = circ[circName].sr; }
+    SP._holes = holes; SP._incerte = new Set(r.incerte || []); SP._r = r; SP._circ = circName;
+    renderGrid();
+  }
+
+  function renderGrid() {
+    const holes = SP._holes, cr = parseFloat($('pCr').value), sr = parseFloat($('pSr').value);
+    const par = holes.reduce((s, h) => s + h.par, 0);
+    const ch = Math.round(parseFloat(IDX_FIG) * sr / 113 + (cr - par));
+    const c = computeCard(holes, ch);
+    $('pPar').value = c.par; $('pStbl').value = c.stbl; $('pAgs').value = c.ags;
+    const cell = (h, i) => `<div class="sp-h${SP._incerte.has(h.n) ? ' sp-unc' : ''}">
+        <div class="sp-n">${h.n}</div><div class="sp-par">par ${h.par}<br>hcp ${h.si}${h.recv ? ' · +' + h.recv : ''}</div>
+        <input type="number" inputmode="numeric" min="1" max="15" value="${h.colpi ?? ''}" placeholder="—" data-i="${i}" oninput="SP.edit(this)">
+        <div class="sp-pts">${h.pts} pt</div></div>`;
+    const r = SP._r, warn = [];
+    if (r.stbl_scritto != null && r.stbl_scritto !== c.stbl) warn.push(`Stableford scritto sulla scheda ${r.stbl_scritto}, calcolato ${c.stbl}`);
+    const lordo = holes.reduce((s, h) => s + (h.colpi || 0), 0);
+    if (r.totale_colpi_scritto != null && holes.every(h => h.colpi) && r.totale_colpi_scritto !== lordo) warn.push(`totale colpi scritto ${r.totale_colpi_scritto}, somma buche ${lordo}`);
+    $('spGrid').innerHTML =
+      `<div class="sp-head">${r.giocatore || PLAYER_NAME} · ${r.circolo || 'circolo ?'}${SP._circ ? '' : ' (CR/SR da verificare)'} · ${r.data || ''} · CH ${ch}</div>
+       <div class="sp-holes">${c.det.map(cell).join('')}</div>
+       <div class="sp-tot">Stableford <b>${c.stbl}</b> · AGS <b>${c.ags}</b> · lordo ${lordo || '—'}${SP._incerte.size ? ' · <span class="sp-unc-t">buche evidenziate: lettura incerta</span>' : ''}</div>
+       ${warn.length ? '<div class="sp-warn">⚠️ ' + warn.join(' · ') + ': controlla le buche.</div>' : ''}
+       <div class="sp-act"><button class="btn-calc" onclick="SP.confirm()">Conferma e calcola →</button></div>`;
+    msg('');
+  }
+
+  function edit(inp) {
+    const h = SP._holes[+inp.dataset.i]; const v = parseInt(inp.value); h.colpi = isNaN(v) ? null : v;
+    SP._incerte.delete(h.n);
+    const keep = document.activeElement === inp, pos = inp.dataset.i;
+    renderGrid();
+    if (keep) { const el = document.querySelector(`#spGrid input[data-i="${pos}"]`); el.focus(); }
+  }
+
+  function confirm() {
+    // registro correzioni: cosa aveva letto il modello e cosa hai confermato
+    const orig = (read?.buche || []).reduce((m, h) => (m[h.n] = h.colpi ?? null, m), {});
+    const diff = SP._holes.filter(h => (orig[h.n] ?? null) !== (h.colpi ?? null)).map(h => ({ n: h.n, letto: orig[h.n] ?? null, vero: h.colpi ?? null }));
+    const log = JSON.parse(localStorage.getItem(LOG) || '[]');
+    log.push({ quando: new Date().toISOString(), giocatore: PLAYER_NAME, circolo: SP._r.circolo, buche: SP._holes.length, diff });
+    localStorage.setItem(LOG, JSON.stringify(log.slice(-50)));
+    const ok = SP._holes.length - diff.length;
+    calcProj();
+    const pr = $('projResult');
+    pr.innerHTML += ` &nbsp;|&nbsp; 📷 Lettura: ${ok}/${SP._holes.length} buche giuste al primo colpo`;
+  }
+
+  function resetKey() { localStorage.removeItem(KEY); askKey(); }
+  function stats() {
+    const log = JSON.parse(localStorage.getItem(LOG) || '[]');
+    const tot = log.reduce((s, l) => s + l.buche, 0), err = log.reduce((s, l) => s + l.diff.length, 0);
+    return { schede: log.length, buche: tot, errori: err, precisione: tot ? (100 * (tot - err) / tot).toFixed(1) + '%' : '—' };
+  }
+  return { pick, onFile, saveKey, resetKey, edit, confirm, computeCard, strokesRecv, fill, stats, COURSES, _holes: null };
+})();
+
 </script>
 </body>
 </html>
