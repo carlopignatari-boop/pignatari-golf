@@ -405,7 +405,7 @@ function calcProj() {
   const idx   = parseFloat(IDX_FIG);
   if (agsRaw === '' && isNaN(idx)) {
     document.getElementById('projResult').className = 'proj-result show';
-    document.getElementById('projResult').innerHTML = '⚠️ Index FIG non disponibile: inserisci anche l\'AGS.';
+    document.getElementById('projResult').innerHTML = '⚠️ Index FIG non disponibile: inserisci anche l’AGS.';
     return;
   }
   // Course Handicap WHS: Index × SR/113 + (CR − Par); AGS = Par + CH + (36 − Stableford)
