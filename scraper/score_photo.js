@@ -167,6 +167,7 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
       si:  course ? course.si[(h.n || i + 1) - 1]  : (h.si || (i + 1)),
       colpi: h.colpi ?? null }));
     if (holes.length !== 18 && holes.length !== 9) { msg('⚠️ Non trovo 18 o 9 buche nella foto: riprova con la scheda intera e ben illuminata.'); return; }
+    if (!holes.some(h => h.colpi != null)) { msg(`⚠️ Non trovo ${PLAYER_NAME} sulla scheda (${r.giocatore ? 'letto: ' + String(r.giocatore).replace(/</g, '&lt;') : 'nessun nome letto'}). Carica la foto dalla pagina del giocatore giusto.`); return; }
     if (holes.length === 9) { msg('ℹ️ Gara da 9 buche: il calcolo FIG usa lo score atteso per le 9 mancanti, qui non ancora replicato. Inserisci lo SD a mano se ti serve.'); }
     if (circName) { $('pCr').value = circ[circName].cr; $('pSr').value = circ[circName].sr; }
     SP._holes = holes; SP._incerte = new Set(r.incerte || []); SP._r = r; SP._circ = circName;
