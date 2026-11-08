@@ -133,7 +133,7 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{border-left:3px soli
 </head>
 <body>
 <h1>🏌️ Pignatari — Ultime 20 gare valide</h1>
-<div class="subtitle">Dati reali FIG (gare valide da 18 e 9 buche) · Aggiornato il 08/11/2026 14:17</div>
+<div class="subtitle">Dati reali FIG (gare valide da 18 e 9 buche) · Aggiornato il 08/11/2026 15:48</div>
 
 <div class="toolbar">
   <button class="btn btn-back" id="btnBack" onclick="goReal()" style="display:none">← Dati reali</button>
@@ -764,33 +764,53 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
     if (status === 0) return 'connessione assente o instabile';
     return 'errore ' + status;
   }
-  // Prova ogni modello fino a 3 volte su errori temporanei (rete, 429, 5xx) con attese crescenti.
+  // Strategia a tetto: 1° modello fino a 75 s (1 solo ritentativo, solo su 429/5xx rapidi), poi il fallback veloce;
+  // tetto complessivo 150 s, così il telefono non gira per minuti.
+  const CAP_MS = 150000;
   async function callModel(b64) {
     const key = getKey(), prov = provider(key), mk = MODEL_KEY + '.' + prov;
     const models = [...new Set([localStorage.getItem(mk), ...PROVIDERS[prov]].filter(Boolean))];
-    let last = { status: 0, txt: '' };
-    for (const m of models) {
-      for (let att = 0; att < 3; att++) {
-        if (att) { msg(`📷 Leggo la scheda… (${human(last.status)}: riprovo, tentativo ${att + 1}/3)`); await sleepMs(att === 1 ? 4000 : 12000); }
-        const [url, headers, body, extract] = request(prov, m, key, b64);
-        let r;
-        try {
-          const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 60000);
-          r = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: ctl.signal });
-          clearTimeout(to);
-        } catch (e) { last = { status: 0, txt: String(e) }; logErr(`${m} rete: ${e}`); continue; }
-        if (r.ok) {
-          try { const out = parseJson(extract(await r.json())); localStorage.setItem(mk, m); return out; }
-          catch (e) { last = { status: 200, txt: 'risposta non leggibile' }; logErr(`${m} json: ${e}`); break; }  // prova il modello successivo
+    const t0 = Date.now(); let last = { status: 0, txt: '' };
+    const tick = setInterval(() => { const el = $('spSec'); if (el) el.textContent = Math.round((Date.now() - t0) / 1000) + ' s'; }, 1000);
+    try {
+      for (let i = 0; i < models.length; i++) {
+        const m = models[i];
+        for (let att = 0; att < 2; att++) {
+          const left = CAP_MS - (Date.now() - t0); if (left < 8000) break;
+          if (att) { msg(`📷 Leggo la scheda… <span id="spSec"></span> (${human(last.status)}: riprovo)`); await sleepMs(3000); }
+          else msg(`📷 Leggo la scheda… <span id="spSec"></span>` + (i ? ` (provo un altro motore)` : ''));
+          const lim = Math.min(i === 0 ? 75000 : 45000, left);
+          const [url, headers, body, extract] = request(prov, m, key, b64);
+          let r; const ts = Date.now();
+          try {
+            const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), lim);
+            r = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: ctl.signal });
+            clearTimeout(to);
+          } catch (e) {
+            const slow = Date.now() - ts > lim - 1000;
+            last = { status: 0, txt: slow ? 'risposta troppo lenta' : String(e) }; logErr(`${m} rete dopo ${Math.round((Date.now()-ts)/1000)}s: ${e}`);
+            if (slow) break;            // lento: inutile ripetere lo stesso modello
+            continue;
+          }
+          if (r.ok) {
+            try { const out = parseJson(extract(await r.json())); localStorage.setItem(mk, m); return out; }
+            catch (e) { last = { status: 200, txt: 'risposta non leggibile' }; logErr(`${m} json: ${e}`); break; }
+          }
+          last = { status: r.status, txt: (await r.text()).slice(0, 200) }; logErr(`${m} ${r.status}: ${last.txt}`);
+          if (r.status === 401) throw Object.assign(new Error(human(401)), { status: 401 });
+          if (!(r.status === 429 || r.status >= 500)) break;
         }
-        last = { status: r.status, txt: (await r.text()).slice(0, 200) }; logErr(`${m} ${r.status}: ${last.txt}`);
-        if (r.status === 401) throw Object.assign(new Error(human(401)), { status: 401 });
-        if (!(r.status === 429 || r.status >= 500)) break;   // errore non temporaneo: modello successivo
       }
-    }
-    throw Object.assign(new Error(human(last.status) + (last.txt ? ' — ' + last.txt.replace(/\s+/g, ' ').slice(0, 120) : '')), { status: last.status });
+    } finally { clearInterval(tick); }
+    const txt = last.txt === 'risposta troppo lenta' ? 'il servizio ha risposto troppo lentamente' : human(last.status) + (last.txt ? ' — ' + last.txt.replace(/\s+/g, ' ').slice(0, 120) : '');
+    throw Object.assign(new Error(txt), { status: last.status });
   }
-
+  function showLog() {
+    let l = []; try { l = JSON.parse(localStorage.getItem(ERRLOG) || '[]'); } catch (e) {}
+    const t = l.slice(-10).map(x => x.t.slice(5, 19).replace('T', ' ') + '  ' + x.e).join('\n') || 'nessun errore registrato';
+    msg('<pre id="spLog" style="white-space:pre-wrap;font-size:11px;max-height:220px;overflow:auto;margin:4px 0">' + t.replace(/</g, '&lt;') + '</pre>'
+      + '<a href="#" onclick="navigator.clipboard.writeText(document.getElementById(\'spLog\').textContent).then(()=>this.textContent=\'✓ copiato\');return false">Copia</a> · <a href="#" onclick="SP.retry();return false">Riprova</a>');
+  }
 
   // ── interfaccia ────────────────────────────────────────────────────
   function msg(html) { const el = $('spMsg'); el.innerHTML = html; el.style.display = html ? 'block' : 'none'; }
@@ -854,14 +874,14 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
     await readB64(lastB64);
   }
   async function readB64(b64) {
-    msg('📷 Leggo la scheda…'); $('spGrid').innerHTML = '';
+    $('spGrid').innerHTML = '';
     try {
       const r = await callModel(b64);
       read = JSON.parse(JSON.stringify(r));
       route(r);
     } catch (e) {
       const own = !!localStorage.getItem(KEY);
-      msg('⚠️ Lettura non riuscita: ' + String(e.message || e).replace(/</g, '&lt;') + '. <a href="#" onclick="SP.retry();return false">Riprova con la stessa foto</a>'
+      msg('⚠️ Lettura non riuscita: ' + String(e.message || e).replace(/</g, '&lt;') + '. <a href="#" onclick="SP.retry();return false">Riprova con la stessa foto</a> · <a href="#" onclick="SP.showLog();return false">dettagli</a>'
         + (e.status === 401 && own ? ' · <a href="#" onclick="SP.resetKey();return false">usa la chiave del gruppo</a>' : '')
         + (e.status === 401 && !own ? ' · la chiave del gruppo va sostituita: avvisa Carlo' : '') + '.');
     }
@@ -936,7 +956,7 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
     const tot = log.reduce((s, l) => s + l.buche, 0), err = log.reduce((s, l) => s + l.diff.length, 0);
     return { schede: log.length, buche: tot, errori: err, precisione: tot ? (100 * (tot - err) / tot).toFixed(1) + '%' : '—' };
   }
-  return { pick, onFile, retry, whoIs, identify, sendTo, takePending, saveKey, resetKey, edit, confirm, computeCard, strokesRecv, fill, stats, COURSES, _holes: null };
+  return { pick, onFile, retry, showLog, whoIs, identify, sendTo, takePending, saveKey, resetKey, edit, confirm, computeCard, strokesRecv, fill, stats, COURSES, _holes: null };
 })();
 
 </script>
