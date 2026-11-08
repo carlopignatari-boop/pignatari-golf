@@ -133,7 +133,7 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{border-left:3px soli
 </head>
 <body>
 <h1>🏌️ Pignatari — Ultime 20 gare valide</h1>
-<div class="subtitle">Dati reali FIG (gare valide da 18 e 9 buche) · Aggiornato il 08/11/2026 07:35</div>
+<div class="subtitle">Dati reali FIG (gare valide da 18 e 9 buche) · Aggiornato il 08/11/2026 08:42</div>
 
 <div class="toolbar">
   <button class="btn btn-back" id="btnBack" onclick="goReal()" style="display:none">← Dati reali</button>
@@ -343,6 +343,7 @@ if (typeof module !== 'undefined') module.exports = { compute, table, r1 };
 return { compute, r1 };
 })();
 const PLAYER_NAME = "Pignatari";
+const PLAYER_FULL = "Pignatari";
 const HIST = [{"d":"14/04/2021","sd":21.7,"iv":17.3,"in":17.3},{"d":"18/07/2021","sd":22.8,"iv":17.3,"in":17.3},{"d":"22/07/2021","sd":22.8,"iv":17.3,"in":17.3},{"d":"24/07/2021","sd":19.2,"iv":17.3,"in":17.3},{"d":"25/07/2021","sd":24.5,"iv":17.3,"in":17.8},{"d":"31/07/2021","sd":29.0,"iv":17.8,"in":18.4},{"d":"01/08/2021","sd":21.0,"iv":18.4,"in":18.4},{"d":"06/08/2021","sd":23.7,"iv":18.4,"in":18.7},{"d":"07/08/2021","sd":20.1,"iv":18.7,"in":18.9},{"d":"25/09/2021","sd":18.4,"iv":18.9,"in":18.9},{"d":"31/10/2021","sd":22.8,"iv":19.0,"in":19.4},{"d":"19/12/2021","sd":22.8,"iv":19.4,"in":19.6},{"d":"19/02/2022","sd":27.2,"iv":19.6,"in":20.2},{"d":"27/02/2022","sd":28.1,"iv":20.2,"in":20.6},{"d":"28/05/2022","sd":24.5,"iv":20.6,"in":20.6},{"d":"04/06/2022","sd":28.1,"iv":20.6,"in":20.6},{"d":"09/06/2022","sd":22.8,"iv":20.6,"in":20.6},{"d":"12/06/2022","sd":22.8,"iv":20.6,"in":20.7},{"d":"21/09/2022","sd":24.5,"iv":20.7,"in":20.7},{"d":"24/09/2022","sd":21.9,"iv":20.7,"in":21.0},{"d":"25/09/2022","sd":24.5,"iv":21.0,"in":21.1},{"d":"09/10/2022","sd":21.0,"iv":21.1,"in":20.9},{"d":"12/10/2022","sd":15.7,"iv":20.9,"in":20.0},{"d":"15/10/2022","sd":22.8,"iv":20.0,"in":20.5},{"d":"16/10/2022","sd":27.2,"iv":20.5,"in":20.5},{"d":"20/10/2022","sd":21.9,"iv":20.5,"in":20.4},{"d":"22/10/2022","sd":21.9,"iv":20.4,"in":20.5},{"d":"27/10/2022","sd":31.6,"iv":20.5,"in":20.5},{"d":"30/10/2022","sd":29.0,"iv":20.5,"in":20.8},{"d":"01/11/2022","sd":16.6,"iv":20.8,"in":20.6},{"d":"03/11/2022","sd":23.7,"iv":20.6,"in":20.6},{"d":"05/11/2022","sd":21.9,"iv":20.6,"in":20.5},{"d":"06/11/2022","sd":26.3,"iv":20.5,"in":20.5},{"d":"25/04/2023","sd":34.3,"iv":20.5,"in":20.5},{"d":"29/04/2023","sd":22.8,"iv":20.5,"in":20.5},{"d":"30/04/2023","sd":31.6,"iv":20.5,"in":20.5},{"d":"01/05/2023","sd":26.3,"iv":20.5,"in":20.5},{"d":"06/05/2023","sd":21.0,"iv":20.5,"in":20.2},{"d":"06/06/2023","sd":22.8,"iv":20.2,"in":20.2},{"d":"29/07/2023","sd":29.0,"iv":20.2,"in":20.4},{"d":"30/07/2023","sd":19.2,"iv":20.4,"in":19.9},{"d":"03/08/2023","sd":18.4,"iv":19.9,"in":19.6},{"d":"05/08/2023","sd":28.1,"iv":19.6,"in":20.5},{"d":"06/08/2023","sd":27.2,"iv":20.5,"in":20.5},{"d":"12/08/2023","sd":18.4,"iv":20.5,"in":19.9},{"d":"17/08/2023","sd":21.0,"iv":19.9,"in":19.8},{"d":"19/08/2023","sd":19.2,"iv":19.8,"in":19.5},{"d":"24/08/2023","sd":26.3,"iv":19.5,"in":19.5},{"d":"26/08/2023","sd":19.2,"iv":19.5,"in":19.1},{"d":"31/08/2023","sd":20.1,"iv":19.1,"in":19.6},{"d":"02/09/2023","sd":23.7,"iv":19.6,"in":19.6},{"d":"07/09/2023","sd":18.4,"iv":19.6,"in":19.2},{"d":"09/09/2023","sd":26.3,"iv":19.2,"in":19.2},{"d":"10/09/2023","sd":20.1,"iv":19.2,"in":19.1},{"d":"28/09/2023","sd":30.7,"iv":19.1,"in":19.1},{"d":"30/09/2023","sd":22.8,"iv":19.1,"in":19.1},{"d":"01/10/2023","sd":29.0,"iv":19.1,"in":19.1},{"d":"08/10/2023","sd":28.1,"iv":19.1,"in":19.1},{"d":"11/10/2023","sd":20.1,"iv":19.1,"in":19.1},{"d":"15/10/2023","sd":22.8,"iv":19.1,"in":19.1},{"d":"21/10/2023","sd":20.1,"iv":19.1,"in":19.2},{"d":"22/10/2023","sd":23.7,"iv":19.2,"in":19.5},{"d":"28/10/2023","sd":28.1,"iv":19.5,"in":19.5},{"d":"29/10/2023","sd":23.7,"iv":19.5,"in":19.5},{"d":"16/11/2023","sd":19.2,"iv":19.5,"in":19.6},{"d":"18/11/2023","sd":22.8,"iv":19.6,"in":19.6},{"d":"03/12/2023","sd":24.5,"iv":19.6,"in":20.0},{"d":"08/12/2023","sd":27.2,"iv":20.0,"in":20.0},{"d":"10/12/2023","sd":22.8,"iv":20.0,"in":20.5},{"d":"16/12/2023","sd":27.2,"iv":20.5,"in":20.8},{"d":"17/12/2023","sd":21.9,"iv":20.8,"in":20.7},{"d":"21/12/2023","sd":18.4,"iv":20.7,"in":20.7},{"d":"30/12/2023","sd":23.7,"iv":20.7,"in":20.7},{"d":"04/01/2024","sd":25.4,"iv":20.7,"in":21.0},{"d":"11/01/2024","sd":26.3,"iv":21.0,"in":21.0},{"d":"27/01/2024","sd":16.6,"iv":21.0,"in":20.2},{"d":"04/02/2024","sd":21.0,"iv":20.2,"in":20.0},{"d":"11/02/2024","sd":30.7,"iv":20.0,"in":20.0},{"d":"17/02/2024","sd":18.4,"iv":20.0,"in":19.8},{"d":"22/02/2024","sd":35.1,"iv":19.8,"in":19.8},{"d":"25/02/2024","sd":23.7,"iv":19.8,"in":20.1},{"d":"02/03/2024","sd":21.0,"iv":20.1,"in":20.1},{"d":"09/03/2024","sd":19.2,"iv":19.9,"in":19.5},{"d":"17/03/2024","sd":34.3,"iv":19.5,"in":19.5},{"d":"30/03/2024","sd":16.6,"iv":19.5,"in":19.1},{"d":"01/04/2024","sd":27.2,"iv":19.1,"in":19.1},{"d":"06/04/2024","sd":26.3,"iv":19.1,"in":19.1},{"d":"13/04/2024","sd":37.4,"iv":19.1,"in":19.1},{"d":"14/04/2024","sd":24.5,"iv":19.1,"in":19.1},{"d":"21/04/2024","sd":21.0,"iv":19.1,"in":19.0},{"d":"27/04/2024","sd":28.1,"iv":19.0,"in":19.0},{"d":"04/05/2024","sd":21.0,"iv":19.0,"in":19.4},{"d":"12/05/2024","sd":25.4,"iv":19.4,"in":19.4},{"d":"18/05/2024","sd":22.8,"iv":19.4,"in":19.4},{"d":"19/05/2024","sd":27.2,"iv":19.4,"in":19.4},{"d":"23/05/2024","sd":23.7,"iv":19.4,"in":20.1},{"d":"16/06/2024","sd":17.5,"iv":20.1,"in":19.7},{"d":"04/07/2024","sd":28.1,"iv":19.7,"in":19.7},{"d":"06/07/2024","sd":24.5,"iv":19.7,"in":20.4},{"d":"07/07/2024","sd":24.5,"iv":20.4,"in":20.4},{"d":"14/07/2024","sd":19.2,"iv":20.4,"in":19.8},{"d":"20/07/2024","sd":15.7,"iv":19.8,"in":19.1},{"d":"27/07/2024","sd":22.8,"iv":19.1,"in":19.6},{"d":"01/08/2024","sd":28.1,"iv":19.6,"in":19.6},{"d":"03/08/2024","sd":26.3,"iv":19.6,"in":20.5},{"d":"08/08/2024","sd":22.8,"iv":20.5,"in":20.4},{"d":"10/08/2024","sd":29.0,"iv":20.4,"in":20.4},{"d":"17/08/2024","sd":17.5,"iv":20.4,"in":19.7},{"d":"18/08/2024","sd":20.1,"iv":19.7,"in":19.4},{"d":"22/08/2024","sd":28.1,"iv":19.4,"in":19.6},{"d":"24/08/2024","sd":23.7,"iv":19.6,"in":19.6},{"d":"25/08/2024","sd":23.7,"iv":19.6,"in":19.8},{"d":"29/08/2024","sd":30.7,"iv":19.8,"in":19.8},{"d":"31/08/2024","sd":25.4,"iv":19.8,"in":19.9},{"d":"07/09/2024","sd":19.2,"iv":19.9,"in":19.4},{"d":"14/09/2024","sd":28.1,"iv":19.4,"in":19.4},{"d":"28/09/2024","sd":28.1,"iv":19.4,"in":20.1},{"d":"05/10/2024","sd":23.7,"iv":20.1,"in":20.1},{"d":"12/10/2024","sd":25.4,"iv":20.1,"in":20.1},{"d":"26/10/2024","sd":30.7,"iv":20.1,"in":20.1},{"d":"27/10/2024","sd":30.7,"iv":20.1,"in":20.7},{"d":"09/11/2024","sd":25.4,"iv":20.7,"in":21.7},{"d":"10/11/2024","sd":28.1,"iv":21.7,"in":22.0},{"d":"24/11/2024","sd":21.9,"iv":22.0,"in":21.6},{"d":"30/11/2024","sd":28.1,"iv":21.6,"in":21.6},{"d":"07/12/2024","sd":22.8,"iv":21.6,"in":21.6},{"d":"14/12/2024","sd":22.8,"iv":21.6,"in":21.5},{"d":"28/12/2024","sd":24.5,"iv":21.5,"in":22.1},{"d":"05/01/2025","sd":19.2,"iv":22.1,"in":22.1},{"d":"06/01/2025","sd":17.5,"iv":22.1,"in":21.4},{"d":"11/01/2025","sd":20.1,"iv":21.4,"in":20.9},{"d":"16/02/2025","sd":21.9,"iv":20.9,"in":20.7},{"d":"23/02/2025","sd":30.7,"iv":20.7,"in":20.7},{"d":"02/03/2025","sd":23.7,"iv":20.7,"in":20.7},{"d":"09/03/2025","sd":27.2,"iv":20.7,"in":21.2},{"d":"16/03/2025","sd":28.1,"iv":21.2,"in":21.2},{"d":"23/03/2025","sd":34.3,"iv":21.2,"in":21.2},{"d":"30/03/2025","sd":24.5,"iv":21.2,"in":21.2},{"d":"06/04/2025","sd":29.0,"iv":21.2,"in":21.2},{"d":"12/04/2025","sd":25.4,"iv":21.2,"in":21.2},{"d":"21/04/2025","sd":22.8,"iv":21.2,"in":21.1},{"d":"26/04/2025","sd":29.0,"iv":21.1,"in":21.1},{"d":"03/05/2025","sd":24.5,"iv":21.1,"in":21.1},{"d":"11/05/2025","sd":26.3,"iv":21.1,"in":21.4},{"d":"18/05/2025","sd":29.0,"iv":21.4,"in":21.4},{"d":"25/05/2025","sd":16.6,"iv":21.4,"in":20.6},{"d":"31/05/2025","sd":18.4,"iv":20.6,"in":20.0},{"d":"01/06/2025","sd":28.1,"iv":20.0,"in":20.0},{"d":"02/06/2025","sd":18.4,"iv":20.0,"in":19.9},{"d":"22/06/2025","sd":24.5,"iv":19.9,"in":20.8},{"d":"28/06/2025","sd":24.5,"iv":20.8,"in":21.4},{"d":"29/06/2025","sd":27.2,"iv":21.4,"in":21.7},{"d":"06/07/2025","sd":21.0,"iv":21.7,"in":21.2},{"d":"12/07/2025","sd":21.9,"iv":21.2,"in":21.0},{"d":"20/07/2025","sd":23.6,"iv":21.0,"in":20.9},{"d":"26/07/2025","sd":28.5,"iv":20.9,"in":20.9},{"d":"02/08/2025","sd":31.3,"iv":20.9,"in":20.9},{"d":"03/08/2025","sd":24.3,"iv":20.9,"in":20.9},{"d":"07/08/2025","sd":21.1,"iv":20.9,"in":20.5},{"d":"09/08/2025","sd":24.2,"iv":20.5,"in":20.5},{"d":"12/08/2025","sd":27.7,"iv":20.5,"in":20.7},{"d":"16/08/2025","sd":23.6,"iv":20.7,"in":20.6},{"d":"17/08/2025","sd":36.2,"iv":20.6,"in":20.6},{"d":"19/08/2025","sd":31.3,"iv":20.6,"in":20.6},{"d":"20/08/2025","sd":24.0,"iv":20.6,"in":20.6},{"d":"23/08/2025","sd":30.7,"iv":20.6,"in":21.5},{"d":"24/08/2025","sd":28.1,"iv":21.5,"in":22.2},{"d":"30/08/2025","sd":34.3,"iv":22.2,"in":22.2},{"d":"31/08/2025","sd":15.7,"iv":22.2,"in":21.9},{"d":"06/09/2025","sd":26.3,"iv":21.9,"in":21.9},{"d":"07/09/2025","sd":17.5,"iv":21.9,"in":21.1},{"d":"13/09/2025","sd":25.4,"iv":21.1,"in":21.1},{"d":"21/09/2025","sd":28.1,"iv":21.1,"in":21.5},{"d":"27/09/2025","sd":26.3,"iv":21.5,"in":21.8},{"d":"05/10/2025","sd":21.0,"iv":21.8,"in":21.4},{"d":"12/10/2025","sd":29.8,"iv":21.4,"in":21.4},{"d":"25/10/2025","sd":31.6,"iv":21.4,"in":21.4},{"d":"16/11/2025","sd":21.9,"iv":21.4,"in":21.1},{"d":"22/11/2025","sd":30.7,"iv":21.1,"in":21.7},{"d":"23/11/2025","sd":24.5,"iv":21.7,"in":21.7},{"d":"30/11/2025","sd":15.7,"iv":21.7,"in":20.5},{"d":"07/12/2025","sd":25.6,"iv":20.5,"in":20.7},{"d":"14/12/2025","sd":22.1,"iv":20.7,"in":20.3},{"d":"22/02/2026","sd":35.4,"iv":20.3,"in":20.3},{"d":"22/03/2026","sd":14.9,"iv":20.3,"in":19.2},{"d":"06/04/2026","sd":23.0,"iv":19.2,"in":19.0},{"d":"26/04/2026","sd":30.1,"iv":19.0,"in":19.0},{"d":"01/05/2026","sd":26.5,"iv":19.0,"in":19.0},{"d":"09/05/2026","sd":23.0,"iv":19.0,"in":19.9},{"d":"10/05/2026","sd":26.5,"iv":19.9,"in":19.9},{"d":"16/05/2026","sd":32.7,"iv":19.9,"in":20.8},{"d":"17/05/2026","sd":35.4,"iv":20.8,"in":20.8},{"d":"30/05/2026","sd":37.2,"iv":20.8,"in":20.8},{"d":"06/06/2026","sd":27.4,"iv":20.8,"in":20.8},{"d":"07/06/2026","sd":28.3,"iv":20.8,"in":21.3},{"d":"20/06/2026","sd":23.8,"iv":21.3,"in":21.1},{"d":"21/06/2026","sd":21.2,"iv":21.1,"in":20.7},{"d":"27/06/2026","sd":30.1,"iv":20.7,"in":21.0},{"d":"28/06/2026","sd":25.6,"iv":21.0,"in":21.0},{"d":"04/07/2026","sd":31.0,"iv":21.0,"in":21.2},{"d":"05/07/2026","sd":31.9,"iv":21.2,"in":22.2},{"d":"11/07/2026","sd":31.9,"iv":22.2,"in":22.3},{"d":"18/07/2026","sd":27.0,"iv":22.3,"in":22.6},{"d":"01/08/2026","sd":31.9,"iv":22.6,"in":22.6},{"d":"08/08/2026","sd":26.8,"iv":22.6,"in":23.3},{"d":"16/08/2026","sd":30.3,"iv":23.3,"in":23.6},{"d":"20/08/2026","sd":35.8,"iv":23.6,"in":23.6},{"d":"22/08/2026","sd":25.6,"iv":23.6,"in":23.5},{"d":"29/08/2026","sd":28.3,"iv":23.5,"in":23.8},{"d":"12/09/2026","sd":26.5,"iv":23.8,"in":23.8},{"d":"19/09/2026","sd":29.2,"iv":23.8,"in":23.8},{"d":"26/09/2026","sd":29.2,"iv":23.8,"in":23.8},{"d":"04/10/2026","sd":31.0,"iv":23.8,"in":23.8},{"d":"11/10/2026","sd":24.7,"iv":23.8,"in":23.6},{"d":"17/10/2026","sd":31.0,"iv":23.6,"in":23.6},{"d":"31/10/2026","sd":23.8,"iv":23.6,"in":23.6},{"d":"07/11/2026","sd":29.2,"iv":23.6,"in":24.0}];
 
 let mode = 'real';  // 'real' | 'sim' | 'proj'
@@ -608,9 +609,10 @@ const SP = (() => {
   const KEY = 'figsync.gemini', MODEL_KEY = 'figsync.geminiModel', LOG = 'figsync.scorelog';
   // Gruppo: il nome in alto sulla scheda decide a chi va il punteggio.
   const ROSTER = [
-    { id: 'pignatari', cognome: 'Pignatari', repo: 'pignatari-golf' },
-    { id: 'berilli',   cognome: 'Berilli',   repo: 'berilli-golf' },
-    { id: 'spagnoli',  cognome: 'Spagnoli',  repo: 'spagnoli-golf' },
+    { id: 'pignatari', nome: 'Carlo',  cognome: 'Pignatari', label: 'Pignatari',   repo: 'pignatari-golf' },
+    { id: 'berilli',   nome: '',       cognome: 'Berilli',   label: 'Berilli',     repo: 'berilli-golf' },
+    { id: 'spagnoli',  nome: 'Andrea', cognome: 'Spagnoli',  label: 'A. Spagnoli', repo: 'spagnoli-golf' },
+    { id: 'espagnoli', nome: 'Enrico', cognome: 'Spagnoli',  label: 'E. Spagnoli', repo: 'e-spagnoli-golf' },
   ];
   const PENDING = 'figsync.pending';
   const norm = x => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z]+/g, ' ').trim();
@@ -621,13 +623,22 @@ const SP = (() => {
       d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
     return d[a.length][b.length];
   }
-  function whoIs(name) {
-    const words = norm(name).split(' ').filter(w => w.length > 2);
-    let best = null, bd = 99;
-    for (const p of ROSTER) for (const w of words) { const dd = lev(w, norm(p.cognome)); if (dd < bd) { bd = dd; best = p; } }
-    return bd <= 2 ? best : null;
+  // Ritorna { p } se il nome individua un giocatore, { amb: [...] } se il cognome è condiviso e il nome non basta, {} se nessuno.
+  function identify(name) {
+    const words = norm(name).split(' ').filter(Boolean);
+    const long = words.filter(w => w.length > 2);
+    let bd = 99;
+    const dist = ROSTER.map(p => Math.min(99, ...long.map(w => lev(w, norm(p.cognome)))));
+    dist.forEach(d => { if (d < bd) bd = d; });
+    if (bd > 2) return {};
+    const cands = ROSTER.filter((p, i) => dist[i] === bd);
+    if (cands.length === 1) return { p: cands[0] };
+    const byFirst = cands.filter(p => p.nome && words.some(w => w !== norm(p.cognome) &&
+      (w.length === 1 ? w === norm(p.nome)[0] : lev(w, norm(p.nome)) <= 1)));
+    return byFirst.length === 1 ? { p: byFirst[0] } : { amb: cands };
   }
-  const me = () => ROSTER.find(p => norm(p.cognome) === norm(typeof PLAYER_NAME !== 'undefined' ? PLAYER_NAME : '')) || null;
+  const whoIs = name => identify(name).p || null;
+  const me = () => identify(typeof PLAYER_FULL !== 'undefined' ? PLAYER_FULL : (typeof PLAYER_NAME !== 'undefined' ? PLAYER_NAME : '')).p || null;
     // Schede dei percorsi note (fonti: GolfPass, TheGrint, Golfify — par e handicap di buca coincidono)
   const COURSES = {
     'MODENA': { nome: 'Modena Golf & Country Club — Bernhard Langer',
@@ -691,7 +702,7 @@ const SP = (() => {
   function prompt() {
     const corsi = Object.values(COURSES).map(c => `${c.nome}: par ${c.par.join(',')}; handicap di buca ${c.si.join(',')}`).join('\n');
     return `Sei un lettore di schede score di golf italiane, compilate a mano.
-Giocatore: è il titolare della scheda, il cui nome è stampato o scritto in alto (intestazione), NON il marcatore. Giocatori del gruppo: ${ROSTER.map(p => p.cognome).join(', ')}. Riporta in "giocatore" il nome come lo leggi in intestazione e usa SOLO la riga o colonna di colpi del titolare.
+Giocatore: è il titolare della scheda, il cui nome è stampato o scritto in alto (intestazione), NON il marcatore. Giocatori del gruppo: ${ROSTER.map(p => (p.nome ? p.nome + ' ' : '') + p.cognome).join(', ')} (due hanno lo stesso cognome: riporta sempre anche nome o iniziale se scritti). Riporta in "giocatore" il nome come lo leggi in intestazione e usa SOLO la riga o colonna di colpi del titolare.
 Leggi per ognuna delle 18 buche (o 9) i colpi lordi scritti dal marcatore. Una buca senza numero, con "X", "-", "/" o cancellata significa non completata: colpi = null.
 Leggi anche par e handicap di buca stampati sulla scheda. Se il campo è uno di questi, usa questi valori stampati:
 ${corsi}
@@ -764,19 +775,32 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
   }
   function pick() { if (!getKey()) return askKey(); $('spFile').click(); }
 
-  function route(r) {
-    const who = whoIs(r.giocatore), mine = me();
-    if (!who || !mine || who.id === mine.id) {
-      fill(r);
-      if (!who && SP._holes) msg(`ℹ️ Nome in alto non riconosciuto (${r.giocatore ? 'letto: ' + String(r.giocatore).replace(/</g, '&lt;') : 'non letto'}): punteggio attribuito a ${mine ? mine.cognome : PLAYER_NAME}.`);
-      return;
-    }
-    localStorage.setItem(PENDING, JSON.stringify({ to: who.id, r, read, ts: Date.now() }));
-    msg(`📋 La scheda è di <b>${who.cognome}</b>: la porto sulla sua pagina…`);
+  function sendTo(id) {
+    const who = ROSTER.find(p => p.id === id); if (!who || !SP._r) return;
+    localStorage.setItem(PENDING, JSON.stringify({ to: who.id, r: SP._r, read, ts: Date.now() }));
+    msg(`📋 La scheda è di <b>${who.label}</b>: la porto sulla sua pagina…`);
     setTimeout(() => {
       try { if (window.parent !== window && typeof window.parent.show === 'function') { window.parent.show(who.id); msg(''); return; } } catch (e) {}
       location.href = `https://carlopignatari-boop.github.io/${who.repo}/`;
     }, 900);
+  }
+  function route(r) {
+    SP._r = r;
+    const id = identify(r.giocatore), mine = me();
+    const esc = String(r.giocatore || '').replace(/</g, '&lt;');
+    if (id.p && mine && id.p.id !== mine.id) return sendTo(id.p.id);
+    if (id.amb && !(mine && id.amb.some(p => p.id === mine.id))) {
+      msg(`❓ Sulla scheda leggo “${esc}”: di chi è? ` + id.amb.map(p => `<button class="btn-calc" onclick="SP.sendTo('${p.id}')">${p.label}</button>`).join(' '));
+      return;
+    }
+    fill(r);
+    if (!SP._holes) return;
+    if (id.amb) {
+      const other = id.amb.filter(p => p.id !== mine.id);
+      msg(`ℹ️ Sulla scheda leggo “${esc}”, senza nome o iniziale chiari: l'ho attribuita a ${mine.label}. ` + other.map(p => `Se è di ${p.label}, <a href="#" onclick="SP.sendTo('${p.id}');return false">spostala</a>.`).join(' '));
+    } else if (!id.p) {
+      msg(`ℹ️ Nome in alto non riconosciuto (${esc ? 'letto: ' + esc : 'non letto'}): punteggio attribuito a ${mine ? mine.label : PLAYER_NAME}.`);
+    }
   }
   function takePending() {
     const mine = me(); if (!mine) return;
@@ -785,7 +809,7 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
     localStorage.removeItem(PENDING);
     if (typeof mode !== 'undefined' && mode !== 'proj' && typeof toggleProj === 'function') toggleProj();
     read = p.read; fill(p.r);
-    if (SP._holes) msg(`📋 Scheda di <b>${mine.cognome}</b> ricevuta: controlla le buche e conferma.`);
+    if (SP._holes) msg(`📋 Scheda di <b>${mine.label}</b> ricevuta: controlla le buche e conferma.`);
   }
   window.addEventListener('storage', e => { if (e.key === PENDING && e.newValue) takePending(); });
   window.addEventListener('load', () => setTimeout(takePending, 50));
@@ -872,7 +896,7 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
     const tot = log.reduce((s, l) => s + l.buche, 0), err = log.reduce((s, l) => s + l.diff.length, 0);
     return { schede: log.length, buche: tot, errori: err, precisione: tot ? (100 * (tot - err) / tot).toFixed(1) + '%' : '—' };
   }
-  return { pick, onFile, whoIs, takePending, saveKey, resetKey, edit, confirm, computeCard, strokesRecv, fill, stats, COURSES, _holes: null };
+  return { pick, onFile, whoIs, identify, sendTo, takePending, saveKey, resetKey, edit, confirm, computeCard, strokesRecv, fill, stats, COURSES, _holes: null };
 })();
 
 </script>
