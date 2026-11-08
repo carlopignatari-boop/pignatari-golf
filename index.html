@@ -133,7 +133,7 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{border-left:3px soli
 </head>
 <body>
 <h1>🏌️ Pignatari — Ultime 20 gare valide</h1>
-<div class="subtitle">Dati reali FIG (gare valide da 18 e 9 buche) · Aggiornato il 08/11/2026 08:42</div>
+<div class="subtitle">Dati reali FIG (gare valide da 18 e 9 buche) · Aggiornato il 08/11/2026 14:17</div>
 
 <div class="toolbar">
   <button class="btn btn-back" id="btnBack" onclick="goReal()" style="display:none">← Dati reali</button>
@@ -749,19 +749,48 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
           { type: 'text', text: prompt() + '\nRispondi solo con il JSON, senza testo attorno.' }] }] },
       j => (j.content || []).map(c => c.text || '').join('')];
   }
+  const sleepMs = ms => new Promise(r => setTimeout(r, ms));
+  const ERRLOG = 'figsync.sperr';
+  function logErr(e) {
+    try { const l = JSON.parse(localStorage.getItem(ERRLOG) || '[]'); l.push({ t: new Date().toISOString(), e: String(e).slice(0, 300) });
+          localStorage.setItem(ERRLOG, JSON.stringify(l.slice(-20))); } catch (x) {}
+  }
+  function human(status, txt) {
+    if (status === 429) return 'troppe richieste ravvicinate (limite del servizio)';
+    if (status === 401) return 'chiave non valida o revocata';
+    if (status === 403) return 'accesso negato dal servizio';
+    if (status === 413) return 'foto troppo pesante';
+    if (status >= 500) return 'servizio momentaneamente non disponibile';
+    if (status === 0) return 'connessione assente o instabile';
+    return 'errore ' + status;
+  }
+  // Prova ogni modello fino a 3 volte su errori temporanei (rete, 429, 5xx) con attese crescenti.
   async function callModel(b64) {
     const key = getKey(), prov = provider(key), mk = MODEL_KEY + '.' + prov;
     const models = [...new Set([localStorage.getItem(mk), ...PROVIDERS[prov]].filter(Boolean))];
-    let lastErr = '';
+    let last = { status: 0, txt: '' };
     for (const m of models) {
-      const [url, headers, body, extract] = request(prov, m, key, b64);
-      const r = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body) });
-      if (r.ok) { localStorage.setItem(mk, m); return parseJson(extract(await r.json())); }
-      lastErr = `${prov} ${m}: ` + r.status + ' ' + (await r.text()).slice(0, 160);
-      if (r.status === 401) break;  // chiave non valida: inutile provare altri modelli
+      for (let att = 0; att < 3; att++) {
+        if (att) { msg(`📷 Leggo la scheda… (${human(last.status)}: riprovo, tentativo ${att + 1}/3)`); await sleepMs(att === 1 ? 4000 : 12000); }
+        const [url, headers, body, extract] = request(prov, m, key, b64);
+        let r;
+        try {
+          const ctl = new AbortController(); const to = setTimeout(() => ctl.abort(), 60000);
+          r = await fetch(url, { method: 'POST', headers, body: JSON.stringify(body), signal: ctl.signal });
+          clearTimeout(to);
+        } catch (e) { last = { status: 0, txt: String(e) }; logErr(`${m} rete: ${e}`); continue; }
+        if (r.ok) {
+          try { const out = parseJson(extract(await r.json())); localStorage.setItem(mk, m); return out; }
+          catch (e) { last = { status: 200, txt: 'risposta non leggibile' }; logErr(`${m} json: ${e}`); break; }  // prova il modello successivo
+        }
+        last = { status: r.status, txt: (await r.text()).slice(0, 200) }; logErr(`${m} ${r.status}: ${last.txt}`);
+        if (r.status === 401) throw Object.assign(new Error(human(401)), { status: 401 });
+        if (!(r.status === 429 || r.status >= 500)) break;   // errore non temporaneo: modello successivo
+      }
     }
-    throw new Error(lastErr);
+    throw Object.assign(new Error(human(last.status) + (last.txt ? ' — ' + last.txt.replace(/\s+/g, ' ').slice(0, 120) : '')), { status: last.status });
   }
+
 
   // ── interfaccia ────────────────────────────────────────────────────
   function msg(html) { const el = $('spMsg'); el.innerHTML = html; el.style.display = html ? 'block' : 'none'; }
@@ -815,18 +844,29 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
   window.addEventListener('load', () => setTimeout(takePending, 50));
   document.addEventListener('visibilitychange', () => { if (!document.hidden) takePending(); });
 
+  let lastB64 = null;
+  async function retry() { if (!lastB64) return pick(); await readB64(lastB64); }
   async function onFile(ev) {
     const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
+    msg('📷 Preparo la foto…'); $('spGrid').innerHTML = '';
+    try { lastB64 = await toJpeg(f); }
+    catch (e) { logErr('foto: ' + e); msg('⚠️ Non riesco ad aprire questa foto: prova a scattarla di nuovo o a sceglierla dalla galleria.'); return; }
+    await readB64(lastB64);
+  }
+  async function readB64(b64) {
     msg('📷 Leggo la scheda…'); $('spGrid').innerHTML = '';
     try {
-      const b64 = await toJpeg(f);
       const r = await callModel(b64);
       read = JSON.parse(JSON.stringify(r));
       route(r);
     } catch (e) {
-      msg('⚠️ Lettura non riuscita: ' + String(e.message || e).replace(/</g, '&lt;') + (String(e).match(/40[013]/) ? ' — controlla la chiave (<a href="#" onclick="SP.resetKey();return false">cambiala</a>).' : ''));
+      const own = !!localStorage.getItem(KEY);
+      msg('⚠️ Lettura non riuscita: ' + String(e.message || e).replace(/</g, '&lt;') + '. <a href="#" onclick="SP.retry();return false">Riprova con la stessa foto</a>'
+        + (e.status === 401 && own ? ' · <a href="#" onclick="SP.resetKey();return false">usa la chiave del gruppo</a>' : '')
+        + (e.status === 401 && !own ? ' · la chiave del gruppo va sostituita: avvisa Carlo' : '') + '.');
     }
   }
+
 
   function fill(r) {
     const circ = knownCircoli();
@@ -890,13 +930,13 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
     pr.innerHTML += ` &nbsp;|&nbsp; 📷 Lettura: ${ok}/${SP._holes.length} buche giuste al primo colpo`;
   }
 
-  function resetKey() { localStorage.removeItem(KEY); askKey(); }
+  function resetKey() { localStorage.removeItem(KEY); if (!getKey()) askKey(); else msg('Uso di nuovo la chiave del gruppo. Premi “Riprova”.'); }
   function stats() {
     const log = JSON.parse(localStorage.getItem(LOG) || '[]');
     const tot = log.reduce((s, l) => s + l.buche, 0), err = log.reduce((s, l) => s + l.diff.length, 0);
     return { schede: log.length, buche: tot, errori: err, precisione: tot ? (100 * (tot - err) / tot).toFixed(1) + '%' : '—' };
   }
-  return { pick, onFile, whoIs, identify, sendTo, takePending, saveKey, resetKey, edit, confirm, computeCard, strokesRecv, fill, stats, COURSES, _holes: null };
+  return { pick, onFile, retry, whoIs, identify, sendTo, takePending, saveKey, resetKey, edit, confirm, computeCard, strokesRecv, fill, stats, COURSES, _holes: null };
 })();
 
 </script>
