@@ -83,5 +83,5 @@ input:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--accent)
 .bar .steps i{border-radius:0;height:3px}
 .frame{flex:1;width:100%;border:0;background:#0f1117}
 .tabs{display:flex;background:var(--card);border-top:1px solid var(--line);padding:6px 8px calc(env(safe-area-inset-bottom) + 6px)}
-.tabs button{flex:1;min-height:48px;border:0;background:none;color:var(--muted);font:inherit;font-weight:600;font-size:14px;border-radius:12px;cursor:pointer;white-space:nowrap;padding:0 4px}
+.tabs button{flex:1;min-height:48px;border:0;background:none;color:var(--muted);font:inherit;font-weight:600;font-size:13px;line-height:1.15;border-radius:12px;cursor:pointer;white-space:normal;padding:0 2px;min-width:0}
 .tabs button.on{color:var(--accent-ink);background:var(--accent)}

@@ -539,6 +539,7 @@ tr:not(.best):not(.sim-best):not(.proj-best) td:first-child{{border-left:3px sol
     parts.append(f"const AVG_SD_REAL = {avg_sd};\n")
     parts.append("const WHS = (() => {\n" + _eng + "\nreturn { compute, r1 };\n})();\n")
     parts.append("const PLAYER_NAME = " + json.dumps(nome.split()[-1]) + ";\n")
+    parts.append("const PLAYER_FULL = " + json.dumps(nome) + ";\n")
     parts.append("const HIST = " + json.dumps(hist, separators=(",", ":")) + ";\n")
     parts.append("""
 let mode = 'real';  // 'real' | 'sim' | 'proj'

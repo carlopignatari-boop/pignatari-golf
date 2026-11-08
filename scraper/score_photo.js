@@ -9,9 +9,10 @@ const SP = (() => {
   const KEY = 'figsync.gemini', MODEL_KEY = 'figsync.geminiModel', LOG = 'figsync.scorelog';
   // Gruppo: il nome in alto sulla scheda decide a chi va il punteggio.
   const ROSTER = [
-    { id: 'pignatari', cognome: 'Pignatari', repo: 'pignatari-golf' },
-    { id: 'berilli',   cognome: 'Berilli',   repo: 'berilli-golf' },
-    { id: 'spagnoli',  cognome: 'Spagnoli',  repo: 'spagnoli-golf' },
+    { id: 'pignatari', nome: 'Carlo',  cognome: 'Pignatari', label: 'Pignatari',   repo: 'pignatari-golf' },
+    { id: 'berilli',   nome: '',       cognome: 'Berilli',   label: 'Berilli',     repo: 'berilli-golf' },
+    { id: 'spagnoli',  nome: 'Andrea', cognome: 'Spagnoli',  label: 'A. Spagnoli', repo: 'spagnoli-golf' },
+    { id: 'espagnoli', nome: 'Enrico', cognome: 'Spagnoli',  label: 'E. Spagnoli', repo: 'e-spagnoli-golf' },
   ];
   const PENDING = 'figsync.pending';
   const norm = x => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toUpperCase().replace(/[^A-Z]+/g, ' ').trim();
@@ -22,13 +23,22 @@ const SP = (() => {
       d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
     return d[a.length][b.length];
   }
-  function whoIs(name) {
-    const words = norm(name).split(' ').filter(w => w.length > 2);
-    let best = null, bd = 99;
-    for (const p of ROSTER) for (const w of words) { const dd = lev(w, norm(p.cognome)); if (dd < bd) { bd = dd; best = p; } }
-    return bd <= 2 ? best : null;
+  // Ritorna { p } se il nome individua un giocatore, { amb: [...] } se il cognome è condiviso e il nome non basta, {} se nessuno.
+  function identify(name) {
+    const words = norm(name).split(' ').filter(Boolean);
+    const long = words.filter(w => w.length > 2);
+    let bd = 99;
+    const dist = ROSTER.map(p => Math.min(99, ...long.map(w => lev(w, norm(p.cognome)))));
+    dist.forEach(d => { if (d < bd) bd = d; });
+    if (bd > 2) return {};
+    const cands = ROSTER.filter((p, i) => dist[i] === bd);
+    if (cands.length === 1) return { p: cands[0] };
+    const byFirst = cands.filter(p => p.nome && words.some(w => w !== norm(p.cognome) &&
+      (w.length === 1 ? w === norm(p.nome)[0] : lev(w, norm(p.nome)) <= 1)));
+    return byFirst.length === 1 ? { p: byFirst[0] } : { amb: cands };
   }
-  const me = () => ROSTER.find(p => norm(p.cognome) === norm(typeof PLAYER_NAME !== 'undefined' ? PLAYER_NAME : '')) || null;
+  const whoIs = name => identify(name).p || null;
+  const me = () => identify(typeof PLAYER_FULL !== 'undefined' ? PLAYER_FULL : (typeof PLAYER_NAME !== 'undefined' ? PLAYER_NAME : '')).p || null;
     // Schede dei percorsi note (fonti: GolfPass, TheGrint, Golfify — par e handicap di buca coincidono)
   const COURSES = {
     'MODENA': { nome: 'Modena Golf & Country Club — Bernhard Langer',
@@ -92,7 +102,7 @@ const SP = (() => {
   function prompt() {
     const corsi = Object.values(COURSES).map(c => `${c.nome}: par ${c.par.join(',')}; handicap di buca ${c.si.join(',')}`).join('\n');
     return `Sei un lettore di schede score di golf italiane, compilate a mano.
-Giocatore: è il titolare della scheda, il cui nome è stampato o scritto in alto (intestazione), NON il marcatore. Giocatori del gruppo: ${ROSTER.map(p => p.cognome).join(', ')}. Riporta in "giocatore" il nome come lo leggi in intestazione e usa SOLO la riga o colonna di colpi del titolare.
+Giocatore: è il titolare della scheda, il cui nome è stampato o scritto in alto (intestazione), NON il marcatore. Giocatori del gruppo: ${ROSTER.map(p => (p.nome ? p.nome + ' ' : '') + p.cognome).join(', ')} (due hanno lo stesso cognome: riporta sempre anche nome o iniziale se scritti). Riporta in "giocatore" il nome come lo leggi in intestazione e usa SOLO la riga o colonna di colpi del titolare.
 Leggi per ognuna delle 18 buche (o 9) i colpi lordi scritti dal marcatore. Una buca senza numero, con "X", "-", "/" o cancellata significa non completata: colpi = null.
 Leggi anche par e handicap di buca stampati sulla scheda. Se il campo è uno di questi, usa questi valori stampati:
 ${corsi}
@@ -165,19 +175,32 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
   }
   function pick() { if (!getKey()) return askKey(); $('spFile').click(); }
 
-  function route(r) {
-    const who = whoIs(r.giocatore), mine = me();
-    if (!who || !mine || who.id === mine.id) {
-      fill(r);
-      if (!who && SP._holes) msg(`ℹ️ Nome in alto non riconosciuto (${r.giocatore ? 'letto: ' + String(r.giocatore).replace(/</g, '&lt;') : 'non letto'}): punteggio attribuito a ${mine ? mine.cognome : PLAYER_NAME}.`);
-      return;
-    }
-    localStorage.setItem(PENDING, JSON.stringify({ to: who.id, r, read, ts: Date.now() }));
-    msg(`📋 La scheda è di <b>${who.cognome}</b>: la porto sulla sua pagina…`);
+  function sendTo(id) {
+    const who = ROSTER.find(p => p.id === id); if (!who || !SP._r) return;
+    localStorage.setItem(PENDING, JSON.stringify({ to: who.id, r: SP._r, read, ts: Date.now() }));
+    msg(`📋 La scheda è di <b>${who.label}</b>: la porto sulla sua pagina…`);
     setTimeout(() => {
       try { if (window.parent !== window && typeof window.parent.show === 'function') { window.parent.show(who.id); msg(''); return; } } catch (e) {}
       location.href = `https://carlopignatari-boop.github.io/${who.repo}/`;
     }, 900);
+  }
+  function route(r) {
+    SP._r = r;
+    const id = identify(r.giocatore), mine = me();
+    const esc = String(r.giocatore || '').replace(/</g, '&lt;');
+    if (id.p && mine && id.p.id !== mine.id) return sendTo(id.p.id);
+    if (id.amb && !(mine && id.amb.some(p => p.id === mine.id))) {
+      msg(`❓ Sulla scheda leggo “${esc}”: di chi è? ` + id.amb.map(p => `<button class="btn-calc" onclick="SP.sendTo('${p.id}')">${p.label}</button>`).join(' '));
+      return;
+    }
+    fill(r);
+    if (!SP._holes) return;
+    if (id.amb) {
+      const other = id.amb.filter(p => p.id !== mine.id);
+      msg(`ℹ️ Sulla scheda leggo “${esc}”, senza nome o iniziale chiari: l'ho attribuita a ${mine.label}. ` + other.map(p => `Se è di ${p.label}, <a href="#" onclick="SP.sendTo('${p.id}');return false">spostala</a>.`).join(' '));
+    } else if (!id.p) {
+      msg(`ℹ️ Nome in alto non riconosciuto (${esc ? 'letto: ' + esc : 'non letto'}): punteggio attribuito a ${mine ? mine.label : PLAYER_NAME}.`);
+    }
   }
   function takePending() {
     const mine = me(); if (!mine) return;
@@ -186,7 +209,7 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
     localStorage.removeItem(PENDING);
     if (typeof mode !== 'undefined' && mode !== 'proj' && typeof toggleProj === 'function') toggleProj();
     read = p.read; fill(p.r);
-    if (SP._holes) msg(`📋 Scheda di <b>${mine.cognome}</b> ricevuta: controlla le buche e conferma.`);
+    if (SP._holes) msg(`📋 Scheda di <b>${mine.label}</b> ricevuta: controlla le buche e conferma.`);
   }
   window.addEventListener('storage', e => { if (e.key === PENDING && e.newValue) takePending(); });
   window.addEventListener('load', () => setTimeout(takePending, 50));
@@ -273,5 +296,5 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
     const tot = log.reduce((s, l) => s + l.buche, 0), err = log.reduce((s, l) => s + l.diff.length, 0);
     return { schede: log.length, buche: tot, errori: err, precisione: tot ? (100 * (tot - err) / tot).toFixed(1) + '%' : '—' };
   }
-  return { pick, onFile, whoIs, takePending, saveKey, resetKey, edit, confirm, computeCard, strokesRecv, fill, stats, COURSES, _holes: null };
+  return { pick, onFile, whoIs, identify, sendTo, takePending, saveKey, resetKey, edit, confirm, computeCard, strokesRecv, fill, stats, COURSES, _holes: null };
 })();

@@ -4,6 +4,7 @@ const PLAYERS = [
   { id: 'pignatari', name: 'Pignatari', tess: '131413', repo: 'pignatari-golf' },
   { id: 'berilli',   name: 'Berilli',   tess: '106712', repo: 'berilli-golf' },
   { id: 'spagnoli',  name: 'A. Spagnoli', tess: '116769', repo: 'spagnoli-golf' },
+  { id: 'espagnoli', name: 'E. Spagnoli', tess: '114449', repo: 'e-spagnoli-golf' },
 ];
 const API = 'https://api.github.com';
 const PAGES = r => `https://${OWNER}.github.io/${r}/`;
@@ -189,7 +190,7 @@ function show(tab) {
 render(); refreshNotice();
 document.querySelectorAll('.tabs button').forEach(b => b.onclick = () => show(b.dataset.tab));
 const startTab = location.hash.slice(1) || localStorage.getItem('figsync.tab') || 'berilli';
-show(['berilli', 'pignatari', 'spagnoli', 'sync'].includes(startTab) ? startTab : 'berilli');
+show([...PLAYERS.map(p => p.id), 'sync'].includes(startTab) ? startTab : 'berilli');
 PLAYERS.forEach(loadStatus);
 document.addEventListener('visibilitychange', () => { if (!document.hidden) PLAYERS.forEach(loadStatus); });
 if (navigator.storage && navigator.storage.persist) navigator.storage.persist();
