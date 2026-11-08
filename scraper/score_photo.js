@@ -264,12 +264,31 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
   window.addEventListener('load', () => setTimeout(takePending, 50));
   document.addEventListener('visibilitychange', () => { if (!document.hidden) takePending(); });
 
+  // L'ultima foto resta sul telefono (30 giorni): scattata dalla app non finisce nel rullino.
+  const PHOTO = 'figsync.lastphoto';
   let lastB64 = null;
+  try { const p = JSON.parse(localStorage.getItem(PHOTO) || 'null'); if (p && Date.now() - p.ts < 30 * 864e5) lastB64 = p.b64; } catch (e) {}
+  function keepPhoto(b64) { try { localStorage.setItem(PHOTO, JSON.stringify({ b64, ts: Date.now() })); } catch (e) { logErr('salva foto: ' + e); } }
+  async function savePhoto() {
+    if (!lastB64) return msg('Nessuna foto salvata su questo telefono.');
+    const bin = atob(lastB64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+    const f = new File([u], 'score-' + new Date().toISOString().slice(0, 10) + '.jpg', { type: 'image/jpeg' });
+    try { if (navigator.canShare && navigator.canShare({ files: [f] })) return await navigator.share({ files: [f] }); } catch (e) { if (e.name === 'AbortError') return; }
+    const url = URL.createObjectURL(f); const a = document.createElement('a'); a.href = url; a.download = f.name; a.target = '_blank'; document.body.appendChild(a); a.click(); a.remove();
+  }
+  function photoLink() {
+    const b = document.querySelector('.sp-btn'); if (!b) return;
+    let a = document.getElementById('spLast');
+    if (!a) { a = document.createElement('a'); a.id = 'spLast'; a.href = '#'; a.style.cssText = 'font-size:12px;margin-left:8px;white-space:nowrap';
+              a.onclick = () => { savePhoto(); return false; }; b.insertAdjacentElement('afterend', a); }
+    a.textContent = '💾 ultima foto'; a.style.display = lastB64 ? '' : 'none';
+  }
+  window.addEventListener('load', photoLink);
   async function retry() { if (!lastB64) return pick(); await readB64(lastB64); }
   async function onFile(ev) {
     const f = ev.target.files[0]; ev.target.value = ''; if (!f) return;
     msg('📷 Preparo la foto…'); $('spGrid').innerHTML = '';
-    try { lastB64 = await toJpeg(f); }
+    try { lastB64 = await toJpeg(f); keepPhoto(lastB64); photoLink(); }
     catch (e) { logErr('foto: ' + e); msg('⚠️ Non riesco ad aprire questa foto: prova a scattarla di nuovo o a sceglierla dalla galleria.'); return; }
     await readB64(lastB64);
   }
@@ -281,7 +300,7 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
       route(r);
     } catch (e) {
       const own = !!localStorage.getItem(KEY);
-      msg('⚠️ Lettura non riuscita: ' + String(e.message || e).replace(/</g, '&lt;') + '. <a href="#" onclick="SP.retry();return false">Riprova con la stessa foto</a> · <a href="#" onclick="SP.showLog();return false">dettagli</a>'
+      msg('⚠️ Lettura non riuscita: ' + String(e.message || e).replace(/</g, '&lt;') + '. <a href="#" onclick="SP.retry();return false">Riprova con la stessa foto</a> · <a href="#" onclick="SP.savePhoto();return false">💾 salva foto</a> · <a href="#" onclick="SP.showLog();return false">dettagli</a>'
         + (e.status === 401 && own ? ' · <a href="#" onclick="SP.resetKey();return false">usa la chiave del gruppo</a>' : '')
         + (e.status === 401 && !own ? ' · la chiave del gruppo va sostituita: avvisa Carlo' : '') + '.');
     }
@@ -356,5 +375,5 @@ Rispondi solo con JSON: {"giocatore":str,"circolo":str|null,"data":"gg/mm/aaaa"|
     const tot = log.reduce((s, l) => s + l.buche, 0), err = log.reduce((s, l) => s + l.diff.length, 0);
     return { schede: log.length, buche: tot, errori: err, precisione: tot ? (100 * (tot - err) / tot).toFixed(1) + '%' : '—' };
   }
-  return { pick, onFile, retry, showLog, whoIs, identify, sendTo, takePending, saveKey, resetKey, edit, confirm, computeCard, strokesRecv, fill, stats, COURSES, _holes: null };
+  return { pick, onFile, retry, showLog, savePhoto, whoIs, identify, sendTo, takePending, saveKey, resetKey, edit, confirm, computeCard, strokesRecv, fill, stats, COURSES, _holes: null };
 })();
