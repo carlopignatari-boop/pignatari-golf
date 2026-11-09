@@ -7,17 +7,17 @@
       "circolo": "MODENA",
       "stbl": 30.0,
       "ags": 105.0,
-      "pcc": null,
-      "sd": null,
-      "sd_est": 29.2,
+      "pcc": 1.0,
+      "sd": 28.3,
+      "sd_est": null,
       "cr": 72.2,
       "sr": 127.0,
       "idxN": 24.0,
       "idxV": 24.0,
       "var": 0.0,
-      "pending": true,
+      "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/82868286-8cdb-f111-84e8-70a8a532fcae",
-      "top8": false,
+      "top8": true,
       "n": 1
     },
     {
@@ -197,7 +197,7 @@
       "var": 0.3,
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/e99e5f1f-cda3-f111-b8de-70a8a5a06624",
-      "top8": true,
+      "top8": false,
       "n": 10
     },
     {
@@ -399,37 +399,17 @@
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/d86ab92d-0173-f111-ab0d-7ced8d5ad87d",
       "top8": true,
       "n": 20
-    },
-    {
-      "data": "27/06/2026",
-      "buche": "18",
-      "gara": "WEEKLY BPER BANCA CUP - 4^ Prova",
-      "circolo": "MODENA",
-      "stbl": 25.0,
-      "ags": 106.0,
-      "pcc": 0.0,
-      "sd": 30.1,
-      "sd_est": null,
-      "cr": 72.2,
-      "sr": 127.0,
-      "idxN": 21.0,
-      "idxV": 20.7,
-      "var": 0.3,
-      "pending": false,
-      "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/aeebf9c6-4072-f111-ab0e-6045bd8a538a",
-      "top8": false,
-      "n": 21
     }
   ],
   "stats": {
     "n_best8": 8,
     "avg_sd": 26.0,
-    "avg_stbl": 30.4,
+    "avg_stbl": 30.2,
     "best_sd": 23.8,
     "idx_fig": 24.0,
     "theoretical_idx": 26.0
   },
-  "updated_at": "08/11/2026 15:55",
+  "updated_at": "09/11/2026 13:00",
   "hist": [
     {
       "d": "14/04/2021",
@@ -1731,6 +1711,12 @@
       "d": "07/11/2026",
       "sd": 29.2,
       "iv": 23.6,
+      "in": 24.0
+    },
+    {
+      "d": "08/11/2026",
+      "sd": 28.3,
+      "iv": 24.0,
       "in": 24.0
     }
   ]
