@@ -131,12 +131,21 @@ async function run(p) {
     toast(`${p.name} aggiornato`);
   } catch (e) {
     busy[p.id] = false;
-    const m = e.status === 401 ? 'Token scaduto o revocato: aprine uno nuovo dall\'ingranaggio' : e.status === 403 || e.status === 404 ? 'Token senza permesso Actions' : e.message;
+    const m = e.status === 401 ? 'Token scaduto o revocato: aprine uno nuovo dall\'ingranaggio' : e.status === 403 || e.status === 404 ? accessMsg(p.repo) : e.message;
     setStatus(p, 'err', m); toast(`${p.name}: ${m}`);
     if (e.status) setSteps(p, null);
   } finally { busy[p.id] = false; setBtn(p, false); }
 }
 
+async function verifyRepos() {
+  const missing = [];
+  for (const p of PLAYERS) {
+    try { await gh(`/repos/${OWNER}/${p.repo}/actions/workflows/${WF}`); }
+    catch (e) { if (e.status === 403 || e.status === 404) missing.push(p.repo); else throw e; }
+  }
+  return missing;
+}
+function accessMsg(repo) { return `Il token non vede ${repo}: aggiungilo al token su GitHub (Actions: Read and write)`; }
 function openSettings() { $('#tokenInput').value = token(); $('#tokenState').textContent = token() ? 'Token salvato su questo dispositivo.' : ''; $('#settings').showModal(); }
 async function saveToken() {
   const v = $('#tokenInput').value.replace(/[\s"'`]/g, '');
@@ -147,9 +156,10 @@ async function saveToken() {
   localStorage.setItem('figsync.token', v);
   $('#tokenState').textContent = 'Verifica…';
   try {
-    for (const p of PLAYERS) await gh(`/repos/${OWNER}/${p.repo}/actions/workflows/${WF}`);
+    const missing = await verifyRepos();
     localStorage.removeItem('figsync.dropped');
-    $('#tokenState').textContent = 'Token valido per entrambi i repo.';
+    if (missing.length) { $('#tokenState').textContent = 'Token salvato, ma non vede: ' + missing.join(', ') + '. Su GitHub aggiungi questi repo al token (Repository access) con Actions: Read and write.'; refreshNotice(); return; }
+    $('#tokenState').textContent = 'Token valido per tutti i ' + PLAYERS.length + ' repo.';
     refreshNotice(); setTimeout(() => $('#settings').close(), 700); toast('Token salvato');
   } catch (e) {
     if (e.status === 401) { prev && prev !== v ? localStorage.setItem('figsync.token', prev) : dropToken('GitHub ha rifiutato il token (401)'); }
