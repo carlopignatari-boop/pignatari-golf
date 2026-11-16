@@ -7,15 +7,15 @@
       "circolo": "MODENA",
       "stbl": 28.0,
       "ags": 107.0,
-      "pcc": null,
-      "sd": null,
-      "sd_est": 31.0,
+      "pcc": 0.0,
+      "sd": 31.0,
+      "sd_est": null,
       "cr": 72.2,
       "sr": 127.0,
       "idxN": 24.0,
       "idxV": 24.0,
       "var": 0.0,
-      "pending": true,
+      "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/267028d4-0be1-f111-84e8-70a8a5332a50",
       "top8": false,
       "n": 1
@@ -217,7 +217,7 @@
       "var": 0.3,
       "pending": false,
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/e99e5f1f-cda3-f111-b8de-70a8a5a06624",
-      "top8": false,
+      "top8": true,
       "n": 11
     },
     {
@@ -399,37 +399,17 @@
       "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/d37802ce-b677-f111-ab0e-000d3a4cccf0",
       "top8": false,
       "n": 20
-    },
-    {
-      "data": "28/06/2026",
-      "buche": "18",
-      "gara": "I CHALLENGE EMILIA-ROMAGNA GOLF AMATEUR",
-      "circolo": "MODENA",
-      "stbl": 31.0,
-      "ags": 101.0,
-      "pcc": 0.0,
-      "sd": 25.6,
-      "sd_est": null,
-      "cr": 72.2,
-      "sr": 127.0,
-      "idxN": 21.0,
-      "idxV": 21.0,
-      "var": 0.0,
-      "pending": false,
-      "link": "https://areariservata.federgolf.it/Risultati/ViewDetail/d86ab92d-0173-f111-ab0d-7ced8d5ad87d",
-      "top8": true,
-      "n": 21
     }
   ],
   "stats": {
     "n_best8": 8,
-    "avg_sd": 26.0,
+    "avg_sd": 26.4,
     "avg_stbl": 30.2,
     "best_sd": 23.8,
     "idx_fig": 24.0,
-    "theoretical_idx": 26.0
+    "theoretical_idx": 26.4
   },
-  "updated_at": "15/11/2026 17:55",
+  "updated_at": "16/11/2026 05:12",
   "hist": [
     {
       "d": "14/04/2021",
@@ -1736,6 +1716,12 @@
     {
       "d": "08/11/2026",
       "sd": 28.3,
+      "iv": 24.0,
+      "in": 24.0
+    },
+    {
+      "d": "15/11/2026",
+      "sd": 31.0,
       "iv": 24.0,
       "in": 24.0
     }
